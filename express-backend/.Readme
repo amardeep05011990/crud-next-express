@@ -1,0 +1,88 @@
+*//curl -X POST http://localhost:3000/api/users \
+-H "Authorization: Bearer YOUR_TOKEN" \
+-H "Content-Type: application/json" \
+-d '{"name":"John Doe","email":"john@example.com"}'
+
+
+curl -X GET http://localhost:3000/api/users \
+-H "Authorization: Bearer YOUR_USER_TOKEN"
+
+curl -X PUT http://localhost:3000/api/users/USER_ID \
+-H "Authorization: Bearer YOUR_USER_TOKEN" \
+-H "Content-Type: application/json" \
+-d '{"name":"Updated Name"}'
+
+
+
+Example curl Commands for CMD
+1. Create a User
+cmd
+Copy
+Edit
+curl -X POST http://localhost:3000/api/users ^
+-H "Content-Type: application/json" ^
+-d "{\"name\":\"John Doe\",\"email\":\"john@example.com\"}"
+2. Create a Post
+cmd
+Copy
+Edit
+curl -X POST http://localhost:3000/api/posts ^
+-H "Content-Type: application/json" ^
+-d "{\"title\":\"My First Post\",\"content\":\"This is my first post.\",\"author\":\"USER_ID_HERE\"}"
+Replace USER_ID_HERE with the actual user ID returned from the "Create a User" step.
+
+3. Create a Comment
+cmd
+Copy
+Edit
+curl -X POST http://localhost:3000/api/comments ^
+-H "Content-Type: application/json" ^
+-d "{\"text\":\"Great post!\",\"author\":\"USER_ID_HERE\",\"post\":\"POST_ID_HERE\"}"
+Replace USER_ID_HERE and POST_ID_HERE with the respective IDs.
+
+4. Fetch All Users (with Related Data)
+cmd
+Copy
+Edit
+curl -X GET http://localhost:3000/api/users
+5. Fetch All Posts (with Related Data)
+cmd
+Copy
+Edit
+curl -X GET http://localhost:3000/api/posts
+6. Update a Post
+cmd
+Copy
+Edit
+curl -X PUT http://localhost:3000/api/posts/POST_ID_HERE ^
+-H "Content-Type: application/json" ^
+-d "{\"title\":\"Updated Title\",\"content\":\"Updated content.\"}"
+Replace POST_ID_HERE with the actual post ID.
+
+7. Delete a Comment
+cmd
+Copy
+Edit
+curl -X DELETE http://localhost:3000/api/comments/COMMENT_ID_HERE
+Replace COMMENT_ID_HERE with the actual comment ID.
+
+
+I'll list out the requirements and make sure nothing is missed:
+
+✅ Final Requirements Checklist:
+1️⃣ Dropdown Enhancements:
+
+ Add & Remove Dropdown Options manually
+ Option to Fetch Data from a Collection API instead
+2️⃣ Validation Features:
+
+ Required
+ Min & Max Length
+ Pattern Matching
+ Min & Max Value for Number fields
+3️⃣ Form Structure Features:
+
+ Rows & Columns: Add/Remove Support
+ Editable Field Labels & Types
+4️⃣ Preserve ALL Previous Features (e.g., delete validation, delete columns, etc.)
+

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h2>Register</h2>
+    <form id="registerForm">
+        <label>Name:</label>
+        <input type="text" name="name" required><br>
+
+        <label>Email:</label>
+        <input type="email" name="email" required><br>
+
+        <label>Password:</label>
+        <input type="password" name="password" required><br>
+
+        <label>Role:</label>
+        <select name="role">
+            <option value="siteowner">Site Owner</option>
+            <option value="schooladmin">School Admin</option>
+            <option value="teacher">Teacher</option>
+            <option value="student">Student</option>
+        </select><br>
+
+        <label>School ID:</label>
+        <input type="text" name="schoolId" required><br>
+
+        <button type="submit">Register</button>
+    </form>
+
+    <p>Already have an account? <a href="/login">Login</a></p>
+
+    <script>
+        $('#registerForm').submit(async function(event) {
+            event.preventDefault();
+            const formData = {};
+            $(this).find('input, select').each(function() {
+                formData[$(this).attr('name')] = $(this).val();
+            });
+
+            const response = await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+
+            const data = await response.json();
+            if (data.status === 'success') {
+                alert('Registration successful! Please login.');
+                window.location.href = '/login';
+            } else {
+                alert(data.message);
+            }
+        });
+    </script>
+</body>
+</html>

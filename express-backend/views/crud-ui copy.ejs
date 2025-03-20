@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= collectionName %> Manager</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h2>Manage <%= collectionName %></h2>
+
+    <h3>Add New <%= collectionName %></h3>
+    <form id="createForm">
+        <% for (const field in schemaDefinition) { %>
+            <label><%= field %></label>
+            <input type="text" name="<%= field %>" required>
+        <% } %>
+        <button type="submit">Create</button>
+    </form>
+
+    <h3>Existing <%= collectionName %> Records</h3>
+    <table border="1">
+        <thead>
+            <tr>
+                <% for (const field in schemaDefinition) { %>
+                    <th><%= field %></th>
+                <% } %>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="data-table"></tbody>
+    </table>
+
+    <script>
+        const token = localStorage.getItem('jwtToken'); // Get token from localStorage
+
+        if (!token) {
+            alert("Unauthorized access! Please login first.");
+            window.location.href = "/login"; // Redirect to login if no token
+        }
+
+        // ✅ **Fetch Data From API**
+        async function fetchData() {
+            const response = await fetch('/api/<%= collectionName %>', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.status === 'error') {
+                alert(data.message);
+                return;
+            }
+
+            const tableBody = document.getElementById("data-table");
+            tableBody.innerHTML = '';
+
+            data.data.forEach(item => {
+                let row = "<tr>";
+                for (const field in schemaDefinition) {
+                    row += `<td>${item["<%= field %>"] || ''}</td>`;
+                }
+                row += `
+                    <td>
+                        <button onclick="editItem('${item._id}')">Edit</button>
+                        <button onclick="deleteItem('${item._id}')">Delete</button>
+                    </td>
+                </tr>`;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        // ✅ **Submit Form to Create Data**
+        $('#createForm').submit(async function(event) {
+            event.preventDefault();
+            const formData = {};
+            $(this).find('input').each(function() {
+                formData[$(this).attr('name')] = $(this).val();
+            });
+
+            const response = await fetch('/api/<%= collectionName %>', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const result = await response.json();
+            if (result.status === 'success') {
+                alert('Created successfully!');
+                fetchData(); // Reload Data
+            } else {
+                alert(result.message);
+            }
+        });
+
+        // ✅ **Delete Item**
+        async function deleteItem(id) {
+            const response = await fetch(`/api/<%= collectionName %>/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            const result = await response.json();
+            if (result.status === 'success') {
+                alert('Deleted successfully!');
+                fetchData(); // Reload Data
+            } else {
+                alert(result.message);
+            }
+        }
+
+        // ✅ **Load Data on Page Load**
+        fetchData();
+    </script>
+</body>
+</html>

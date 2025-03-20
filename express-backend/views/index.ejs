@@ -1,0 +1,133 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRUD Generator</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <h2>🛠️ Dynamic CRUD Generator</h2>
+
+  <form id="crudForm">
+    <input type="text" id="collectionName" placeholder="Collection Name" required>
+    <div id="fieldsContainer"></div>
+    <button type="button" onclick="addField()">➕ Add Field</button>
+    <button type="submit">🚀 Generate CRUD</button>
+  </form>
+
+  <h3>Live API Response</h3>
+  <pre id="liveOutput"></pre>
+
+  <script>
+    function addField() {
+      $('#fieldsContainer').append(`
+        <div>
+          <input type="text" placeholder="Field Name" class="field-name">
+          <select class="field-type">
+            <option value="String">String</option>
+            <option value="Number">Number</option>
+          </select>
+          <input type="checkbox" class="field-required"> Required
+        </div>
+      `);
+    }
+
+    $('#crudForm').submit(async function(event) {
+      event.preventDefault();
+
+      const collectionName = $('#collectionName').val();
+      const fields = $('.field-name').map((i, el) => ({
+        name: $(el).val(),
+        type: $('.field-type').eq(i).val(),
+        required: $('.field-required').eq(i).is(':checked')
+      })).get();
+
+      const response = await fetch('/generate-crud', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ collectionName, fields })
+      });
+
+      $('#liveOutput').text(JSON.stringify(await response.json(), null, 2));
+    });
+  </script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRUD Generator</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <h2>🛠️ Dynamic CRUD Generator</h2>
+
+  <form id="crudForm">
+    <input type="text" id="collectionName" placeholder="Collection Name" required>
+
+    <h3>Fields</h3>
+    <div id="fieldsContainer"></div>
+    <button type="button" onclick="addField()">➕ Add Field</button>
+
+    <h3>Relationships</h3>
+    <div id="relationshipsContainer"></div>
+    <button type="button" onclick="addRelationship()">➕ Add Relationship</button>
+
+    <button type="submit">🚀 Generate CRUD</button>
+  </form>
+
+  <script>
+    function addField() {
+      $('#fieldsContainer').append(`
+        <div>
+          <input type="text" placeholder="Field Name" class="field-name">
+          <select class="field-type">
+            <option value="String">String</option>
+            <option value="Number">Number</option>
+          </select>
+          <input type="checkbox" class="field-required"> Required
+        </div>
+      `);
+    }
+
+    function addRelationship() {
+      $('#relationshipsContainer').append(`
+        <div>
+          <input type="text" placeholder="Field Name" class="relation-field">
+          <input type="text" placeholder="Reference Collection" class="relation-ref">
+          <select class="relation-type">
+            <option value="one-to-many">One-to-Many</option>
+            <option value="many-to-one">Many-to-One</option>
+          </select>
+        </div>
+      `);
+    }
+
+    $('#crudForm').submit(async function(event) {
+      event.preventDefault();
+      const collectionName = $('#collectionName').val();
+      const token = localStorage.getItem('jwtToken');
+
+      const fields = $('.field-name').map((i, el) => ({
+        name: $(el).val(),
+        type: $('.field-type').eq(i).val(),
+        required: $('.field-required').eq(i).is(':checked')
+      })).get();
+
+      const relationships = $('.relation-field').map((i, el) => ({
+        field: $(el).val(),
+        ref: $('.relation-ref').eq(i).val(),
+        type: $('.relation-type').eq(i).val()
+      })).get();
+
+      await fetch('/generate-crud', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ collectionName, fields, relationships }) });
+    });
+  </script>
+</body>
+</html>
+
+

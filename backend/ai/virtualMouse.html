@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Mouse with Hand Tracking</title>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils"></script>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        video { position: fixed; top: 10px; left: 10px; width: 320px; height: auto; opacity: 0.5; }
+        .cursor { 
+            position: absolute; width: 20px; height: 20px; background: red;
+            border-radius: 50%; pointer-events: none; transition: transform 0.05s linear;
+        }
+    </style>
+</head>
+<body>
+    <video id="video" autoplay playsinline></video>
+    <div class="cursor" id="cursor"></div>
+
+    <script>
+        const videoElement = document.getElementById("video");
+        const cursorElement = document.getElementById("cursor");
+
+        // Initialize MediaPipe Hands
+        const hands = new Hands({
+            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+        });
+
+        hands.setOptions({
+            maxNumHands: 1,
+            modelComplexity: 1,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5
+        });
+
+        hands.onResults((results) => {
+            if (results.multiHandLandmarks.length > 0) {
+            console.log(results.multiHandLandmarks)
+
+                const landmarks = results.multiHandLandmarks[0];
+
+                // Get index finger tip coordinates
+                const indexFinger = landmarks[8]; // Tip of the index finger
+                const thumb = landmarks[4]; // Tip of the thumb
+
+                // Convert normalized coordinates to screen position
+                const x = window.innerWidth * indexFinger.x;
+                const y = window.innerHeight * indexFinger.y;
+
+                // Move the cursor
+                cursorElement.style.transform = `translate(${x}px, ${y}px)`;
+
+                // Detect pinch (thumb and index close together)
+                const pinchDistance = Math.hypot(indexFinger.x - thumb.x, indexFinger.y - thumb.y);
+                if (pinchDistance < 0.05) {
+                    simulateClick(x, y);
+                }
+            }
+        });
+
+        // Simulate mouse click event
+        // function simulateClick(x, y) {
+            // const event = new MouseEvent("click", { clientX: x, clientY: y });
+            // document.elementFromPoint(x, y)?.dispatchEvent(event);
+            // console.log("clickeddd  =======================")
+        // }
+
+        function simulateClick(x, y) {
+        console.log(`Simulating click at (${x}, ${y})`);
+
+        const event = new MouseEvent("click", { clientX: x, clientY: y });
+        const element = document.elementFromPoint(x, y);
+
+        if (element) {
+            console.log(`Clicking element:`, element);
+            element.dispatchEvent(event);
+        } else {
+            console.log("No element found at this position.");
+        }
+    }
+
+
+        // Setup camera
+        const camera = new Camera(videoElement, {
+            onFrame: async () => await hands.send({ image: videoElement }),
+            width: 640,
+            height: 480
+        });
+        camera.start();
+    </script>
+    
+</body>
+</html>

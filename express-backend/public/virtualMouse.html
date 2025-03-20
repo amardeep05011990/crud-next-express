@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Mouse with Hand Tracking</title>
+    <script type="module">
+        import { Hands } from "/node_modules/@mediapipe/hands/hands.js";
+        import { Camera } from "/node_modules/@mediapipe/camera_utils/camera_utils.js";
+        import { drawConnectors, drawLandmarks, HAND_CONNECTIONS } from "/node_modules/@mediapipe/drawing_utils/drawing_utils.js";
+
+        const videoElement = document.createElement("video");
+        videoElement.setAttribute("autoplay", true);
+        videoElement.setAttribute("playsinline", true);
+        document.body.appendChild(videoElement);
+
+        const cursorElement = document.createElement("div");
+        cursorElement.style.position = "absolute";
+        cursorElement.style.width = "20px";
+        cursorElement.style.height = "20px";
+        cursorElement.style.background = "red";
+        cursorElement.style.borderRadius = "50%";
+        cursorElement.style.pointerEvents = "none";
+        document.body.appendChild(cursorElement);
+
+        const hands = new Hands({
+            locateFile: (file) => `/node_modules/@mediapipe/hands/${file}`
+        });
+
+        hands.setOptions({
+            maxNumHands: 1,
+            modelComplexity: 1,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5
+        });
+
+        hands.onResults((results) => {
+            if (results.multiHandLandmarks.length > 0) {
+                const landmarks = results.multiHandLandmarks[0];
+
+                const indexFinger = landmarks[8]; // Tip of the index finger
+                const thumb = landmarks[4]; // Tip of the thumb
+
+                const x = window.innerWidth * indexFinger.x;
+                const y = window.innerHeight * indexFinger.y;
+
+                cursorElement.style.transform = `translate(${x}px, ${y}px)`;
+
+                const pinchDistance = Math.hypot(indexFinger.x - thumb.x, indexFinger.y - thumb.y);
+                if (pinchDistance < 0.05) {
+                    simulateClick(x, y);
+                }
+            }
+        });
+
+        function simulateClick(x, y) {
+            const event = new MouseEvent("click", { clientX: x, clientY: y });
+            document.elementFromPoint(x, y)?.dispatchEvent(event);
+        }
+
+        const camera = new Camera(videoElement, {
+            onFrame: async () => await hands.send({ image: videoElement }),
+            width: 640,
+            height: 480
+        });
+        camera.start();
+    </script>
+</head>
+<body>
+</body>
+</html>

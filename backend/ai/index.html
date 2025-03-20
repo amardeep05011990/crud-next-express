@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Balloon Pop VR Game</title>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+</head>
+<body>
+    <a-scene>
+        <!-- Sky background -->
+        <a-sky color="lightblue"></a-sky>
+
+        <!-- Ground -->
+        <a-plane position="0 0 -5" rotation="-90 0 0" width="10" height="10" color="green"></a-plane>
+
+        <!-- Score Display -->
+        <a-text id="scoreText" value="Score: 0" position="-2 3 -4" color="black" width="3"></a-text>
+        
+        <!-- Camera -->
+        <a-camera position="0 1.6 0">
+            <a-entity cursor="rayOrigin: mouse">
+                <!-- <a-curser ></a-curser> -->
+        </a-camera>
+    </a-scene>
+    <!-- <a-scene xr-mode-ui="enabled: true">
+        <a-entity hand-tracking-controls="hand: left"></a-entity>
+        <a-entity hand-tracking-controls="hand: right"></a-entity>
+    </a-scene> -->
+    <script>
+        let score = 0;
+        let speed = 2000; // Initial balloon spawn speed (milliseconds)
+
+        function spawnBalloon() {
+            const scene = document.querySelector('a-scene');
+            const balloon = document.createElement('a-sphere');
+
+            // Random position
+            const xPos = (Math.random() * 4) - 2;
+            balloon.setAttribute('position', `${xPos} 4 -3`);
+            balloon.setAttribute('radius', '0.4');
+
+            // 90% chance for a normal balloon, 10% chance for a thorn balloon
+            let isThornBalloon = Math.random() < 0.1;
+
+            if (isThornBalloon) {
+                balloon.setAttribute('color', 'black'); // Thorn balloon color
+                balloon.setAttribute('thorn-balloon', ''); // Special component
+            } else {
+                balloon.setAttribute('color', getRandomColor());
+                balloon.setAttribute('balloon', ''); // Normal balloon component
+            }
+
+            scene.appendChild(balloon);
+
+            // Animate the balloon falling
+            let interval = setInterval(() => {
+                let pos = balloon.getAttribute('position');
+                if (pos.y <= 0) {
+                    clearInterval(interval);
+                    // scene.removeChild(balloon); // Remove balloon if it hits the ground
+                    if (balloon.parentNode) {
+                        balloon.parentNode.removeChild(balloon); // Remove balloon if it hits the ground
+                    }
+                } else {
+                    balloon.setAttribute('position', `${pos.x} ${pos.y - 0.05} ${pos.z}`);
+                }
+            }, 50);
+        }
+
+        // Normal balloon component (increases score)
+        AFRAME.registerComponent('balloon', {
+            init: function () {
+                let el = this.el;
+                el.addEventListener('mousedown', function (event) {
+                    // el.remove(); // Remove the clicked balloon
+                    console.log("element ",el)
+                    console.log("event ",event)
+
+                    if (el.parentNode) {
+                        el.parentNode.removeChild(el); // Remove the clicked balloon safely
+                    }
+                    score += 10;
+                    updateScore();
+                });
+            }
+        });
+
+        // Thorn balloon component (decreases score)
+        AFRAME.registerComponent('thorn-balloon', {
+            init: function () {
+                let el = this.el;
+                el.addEventListener('mousedown', function () {
+                    // el.remove(); // Remove the thorn balloon
+                    if (el.parentNode) {
+                        el.parentNode.removeChild(el); // Remove the clicked balloon safely
+                    }
+                    score -= 15; // Reduce score
+                    if (score < 0) score = 0; // Prevent negative scores
+                    updateScore();
+                });
+            }
+        });
+
+        function updateScore() {
+            document.getElementById('scoreText').setAttribute('value', 'Score: ' + score);
+        }
+
+        // Function to get a random balloon color
+        function getRandomColor() {
+            const colors = ['red', 'blue', 'yellow', 'pink', 'purple', 'orange'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        // Spawn balloons at intervals
+        setInterval(spawnBalloon, speed);
+    </script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hand Tracking with JavaScript</title>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils"></script>
+    <style>
+        body { text-align: center; }
+        video { transform: scaleX(-1); } /* Mirror the video for better UX */
+        canvas { position: absolute; top: 0; left: 0; }
+    </style>
+</head>
+<body>
+    <h2>🖐️ Real-time Hand Tracking with JavaScript</h2>
+    <video id="video" autoplay playsinline></video>
+    <canvas id="output"></canvas>
+
+    <script>
+        const videoElement = document.getElementById("video");
+        const canvasElement = document.getElementById("output");
+        const canvasCtx = canvasElement.getContext("2d");
+
+        const hands = new Hands({
+            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+        });
+
+        hands.setOptions({
+            maxNumHands: 2, // Track up to 2 hands
+            modelComplexity: 1,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5
+        });
+
+        hands.onResults((results) => {
+            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            canvasCtx.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+
+            if (results.multiHandLandmarks) {
+                for (const landmarks of results.multiHandLandmarks) {
+                    drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, { color: "#00FF00", lineWidth: 2 });
+                    drawLandmarks(canvasCtx, landmarks, { color: "#FF0000", radius: 4 });
+                }
+            }
+        });
+
+        // Setup Camera
+        const camera = new Camera(videoElement, {
+            onFrame: async () => await hands.send({ image: videoElement }),
+            width: 640,
+            height: 480
+        });
+        camera.start();
+    </script>
+</body>
+</html>
