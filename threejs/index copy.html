@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Interactive Quiz World</title>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    #questionBox {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: #fff;
+      padding: 16px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      display: none;
+      width: 300px;
+      font-family: sans-serif;
+    }
+    #questionBox h3 { margin-top: 0; }
+    #hud {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: white;
+      font-family: sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div id="questionBox">
+    <h3>Math Quiz</h3>
+    <p>What is 3 + 4?</p>
+    <button onclick="alert('✅ Correct!')">7</button>
+    <button onclick="alert('❌ Try Again')">8</button>
+  </div>
+
+  <div id="hud">
+    <div id="score">Score: 0</div>
+    <div id="health">❤️❤️❤️</div>
+  </div>
+
+  <audio id="fireSound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_7a0c04e8d0.mp3"></audio>
+  <audio id="hitSound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_cfa3158c66.mp3"></audio>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.154.0/build/three.min.js"></script>
+  <script>
+    const scene = new THREE.Scene();
+
+    const camera = new THREE.PerspectiveCamera(
+      75, window.innerWidth / window.innerHeight, 0.1, 1000
+    );
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // 🔁 RESTART
+    window.addEventListener("keydown", (e) => {
+      if (e.key.toLowerCase() === 'r') location.reload();
+    });
+
+    // Player
+    const player = new THREE.Mesh(
+      new THREE.BoxGeometry(1, 1, 1),
+      new THREE.MeshStandardMaterial({ color: 0xffa500 })
+    );
+    player.position.set(0, 0.5, 0);
+    scene.add(player);
+
+    // HUD
+    let score = 0;
+    let health = 3;
+    const scoreElement = document.getElementById("score");
+    const healthElement = document.getElementById("health");
+
+    // Enemies
+    const enemies = [];
+    let gameOver = false;
+    function createEnemy() {
+      const geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+      const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+      const enemy = new THREE.Mesh(geometry, material);
+
+      enemy.position.x = (Math.random() - 0.5) * 10;
+      enemy.position.y = 5;
+      enemy.position.z = (Math.random() - 0.5) * 10;
+
+      scene.add(enemy);
+      enemies.push(enemy);
+    }
+    setInterval(createEnemy, 1500);
+
+    // Ground
+    const ground = new THREE.Mesh(
+      new THREE.PlaneGeometry(50, 50),
+      new THREE.MeshStandardMaterial({ color: 0xe0e0e0 })
+    );
+    ground.rotation.x = -Math.PI / 2;
+    scene.add(ground);
+
+    // Light
+    scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+    const light = new THREE.DirectionalLight(0xffffff, 1);
+    light.position.set(5, 10, 7);
+    scene.add(light);
+
+    // Trigger Zone
+    const quizZone = new THREE.Box3().setFromCenterAndSize(
+      new THREE.Vector3(5, 0.5, 5),
+      new THREE.Vector3(2, 2, 2)
+    );
+
+    let quizShown = false;
+    const keys = {};
+    window.addEventListener("keydown", (e) => {
+      keys[e.key.toLowerCase()] = true;
+    });
+    window.addEventListener("keyup", (e) => {
+      keys[e.key.toLowerCase()] = false;
+    });
+
+    const bullets = [];
+    document.addEventListener("keydown", (event) => {
+      if (event.code === "Space") shootBullet();
+    });
+
+    const fireSound = document.getElementById("fireSound");
+    const hitSound = document.getElementById("hitSound");
+
+    function movePlayer() {
+      const speed = 0.1;
+      if (keys["w"] || keys["arrowup"]) player.position.z -= speed;
+      if (keys["s"] || keys["arrowdown"]) player.position.z += speed;
+      if (keys["a"] || keys["arrowleft"]) player.position.x -= speed;
+      if (keys["d"] || keys["arrowright"]) player.position.x += speed;
+    }
+
+    function shootBullet() {
+      fireSound.play();
+      const geometry = new THREE.SphereGeometry(0.1, 8, 8);
+      const material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+      const bullet = new THREE.Mesh(geometry, material);
+      bullet.position.copy(player.position);
+      bullet.position.y += 0.5;
+      scene.add(bullet);
+      bullets.push(bullet);
+    }
+
+    function endGame() {
+      gameOver = true;
+      const gameOverText = document.createElement("div");
+      gameOverText.innerText = "💥 Game Over! Press R to restart.";
+      gameOverText.style.position = "absolute";
+      gameOverText.style.top = "50%";
+      gameOverText.style.left = "50%";
+      gameOverText.style.transform = "translate(-50%, -50%)";
+      gameOverText.style.fontSize = "36px";
+      gameOverText.style.color = "red";
+      gameOverText.style.fontWeight = "bold";
+      document.body.appendChild(gameOverText);
+    }
+
+    function updateHealth() {
+      healthElement.innerText = "❤️".repeat(health);
+      if (health <= 0) endGame();
+    }
+
+    // Main Loop
+    function animate() {
+      if (gameOver) return;
+      requestAnimationFrame(animate);
+
+      movePlayer();
+      camera.position.set(player.position.x, 5, player.position.z + 10);
+      camera.lookAt(player.position);
+
+      // Trigger quiz
+      const playerBox = new THREE.Box3().setFromObject(player);
+      if (playerBox.intersectsBox(quizZone) && !quizShown) {
+        document.getElementById("questionBox").style.display = "block";
+        quizShown = true;
+      }
+
+      // Enemy movement
+      enemies.forEach((enemy, index) => {
+        enemy.position.y -= 0.05;
+        if (enemy.position.y < -2) {
+          scene.remove(enemy);
+          enemies.splice(index, 1);
+          health--;
+          updateHealth();
+        }
+      });
+
+      // Bullets
+      bullets.forEach((bullet, bIndex) => {
+        bullet.position.y += 0.1;
+
+        enemies.forEach((enemy, eIndex) => {
+          const dist = bullet.position.distanceTo(enemy.position);
+          if (dist < 0.5) {
+            scene.remove(bullet);
+            scene.remove(enemy);
+            bullets.splice(bIndex, 1);
+            enemies.splice(eIndex, 1);
+            score++;
+            hitSound.play();
+            scoreElement.innerText = `Score: ${score}`;
+          }
+        });
+
+        if (bullet.position.y > 5) {
+          scene.remove(bullet);
+          bullets.splice(bIndex, 1);
+        }
+      });
+
+      renderer.render(scene, camera);
+    }
+
+    animate();
+  </script>
+</body>
+</html>
