@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+	
+	<meta title="HAXEUI" package="com.sample.haxeui" version="1.0.0" company="Company Name" />
+	<app main="Main" path="Export" file="HAXEUI" />
+	
+	<source path="src" />
+	
+	<haxelib name="openfl" />
+	<haxelib name="haxeui-core" />
+	<haxelib name="haxeui-openfl" />
+	
+	<assets path="Assets" rename="assets" />
+	
+</project>

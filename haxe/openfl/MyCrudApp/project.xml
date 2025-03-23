@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+	
+	<meta title="MyCrudApp" package="com.sample.mycrudapp" version="1.0.0" company="Company Name" />
+	<app main="Main" path="Export" file="MyCrudApp" />
+
+	
+	<source path="Source" />
+	
+	<haxelib name="openfl" />
+	<haxelib name="haxeui-core" />
+<haxelib name="haxeui-openfl" />
+
+	
+	<assets path="Assets" rename="assets" />
+	
+</project>
