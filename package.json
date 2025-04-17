@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "express": "^5.1.0",
+    "h5p-nodejs-library": "^6.2.0"
+  }
+}

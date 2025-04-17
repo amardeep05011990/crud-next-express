@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Face Part Overlay</title>
+  <style>
+    canvas {
+      border: 2px solid black;
+      display: block;
+      margin: auto;
+    }
+  </style>
+</head>
+<body>
+
+<video id="webcam" autoplay muted playsinline style="display: none;"></video>
+<canvas id="output"></canvas>
+
+<script type="module">
+  import { FaceLandmarker, FilesetResolver } from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3';
+
+  let faceLandmarker;
+  let runningMode = 'VIDEO';
+
+  // Load all facial part overlays
+  const parts = {
+    forehead: loadImage('forehead.png'),
+    leftCheek: loadImage('cheek-left.png'),
+    rightCheek: loadImage('cheek-right.png'),
+    eyes: loadImage('eyes.png'),
+    lips: loadImage('lips.png'),
+    beard: loadImage('beard.png'),
+  };
+
+  function loadImage(src) {
+    const img = new Image();
+    img.src = src;
+    return img;
+  }
+
+  async function init() {
+    const vision = await FilesetResolver.forVisionTasks(
+      'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm'
+    );
+
+    faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
+      baseOptions: {
+        modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',
+        delegate: 'GPU',
+      },
+      runningMode,
+      numFaces: 1,
+    });
+
+    startCamera();
+  }
+
+  async function startCamera() {
+    const video = document.getElementById("webcam");
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    video.srcObject = stream;
+    video.play();
+    video.onloadeddata = () => detectLoop(video);
+  }
+
+  async function detectLoop(video) {
+    const canvas = document.getElementById("output");
+    const ctx = canvas.getContext("2d");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    async function frameLoop() {
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const results = await faceLandmarker.detectForVideo(video, Date.now());
+
+      if (results.faceLandmarks.length > 0) {
+        const landmarks = results.faceLandmarks[0];
+
+        // Example facial zone centers
+        const leftCheek = landmarks[234];
+        const rightCheek = landmarks[454];
+        const nose = landmarks[1];
+        const leftEye = landmarks[33];
+        const rightEye = landmarks[263];
+        const lipsTop = landmarks[13];
+        const lipsBottom = landmarks[14];
+        const chin = landmarks[152];
+        const forehead = landmarks[10];
+
+        const faceWidth = Math.abs(rightEye.x - leftEye.x) * canvas.width * 2;
+        const faceHeight = faceWidth * 1.2;
+
+        // 🧠 Utility to draw part at landmark
+        const drawPart = (img, point, widthRatio = 1, heightRatio = 1) => {
+          if (img.complete) {
+            const x = point.x * canvas.width;
+            const y = point.y * canvas.height;
+            const w = faceWidth * widthRatio;
+            const h = faceHeight * heightRatio;
+            ctx.drawImage(img, x - w / 2, y - h / 2, w, h);
+          }
+        };
+
+        drawPart(parts.forehead, forehead, 0.6, 0.3);
+        drawPart(parts.leftCheek, leftCheek, 0.4, 0.4);
+        drawPart(parts.rightCheek, rightCheek, 0.4, 0.4);
+        drawPart(parts.eyes, nose, 0.9, 0.4);
+        drawPart(parts.lips, lipsBottom, 0.5, 0.3);
+        drawPart(parts.beard, chin, 0.8, 0.5);
+      }
+
+      requestAnimationFrame(frameLoop);
+    }
+
+    frameLoop();
+  }
+
+  window.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
