@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Fabric.js Edge Drawing</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+  <style>
+    canvas {
+      border: 1px solid #ccc;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <button onclick="addCollection()">➕ Add Collection</button>
+  <canvas id="canvas" width="1000" height="600"></canvas>
+
+  <script>
+    const canvas = new fabric.Canvas("canvas");
+    const blocks = [];
+    let isConnecting = false;
+    let startPoint = null;
+    const EDGE_RADIUS = 15;
+
+    function addCollection() {
+      const width = 120;
+      const height = 80;
+      const x = 100 + blocks.length * 150;
+      const y = 100;
+
+      const rect = new fabric.Rect({
+        width,
+        height,
+        fill: "#e3f2fd",
+        stroke: "#1976d2",
+        strokeWidth: 2,
+      });
+
+      const label = new fabric.Text("Collection " + (blocks.length + 1), {
+        fontSize: 14,
+        top: -height / 2 + 10,
+      });
+
+      const group = new fabric.Group([rect, label], {
+        left: x,
+        top: y,
+        hasControls: false,
+        hasBorders: false,
+        lockScalingX: true,
+        lockScalingY: true,
+        name: "collection",
+      });
+
+      canvas.add(group);
+      blocks.push(group);
+    }
+
+    function getEdgePoint(obj, pointer) {
+      const rect = obj.getBoundingRect();
+      const edges = [
+        { x: rect.left, y: rect.top + rect.height / 2 }, // left
+        { x: rect.left + rect.width, y: rect.top + rect.height / 2 }, // right
+        { x: rect.left + rect.width / 2, y: rect.top }, // top
+        { x: rect.left + rect.width / 2, y: rect.top + rect.height } // bottom
+      ];
+
+      for (const edge of edges) {
+        const dist = Math.hypot(edge.x - pointer.x, edge.y - pointer.y);
+        if (dist <= EDGE_RADIUS) {
+          return edge;
+        }
+      }
+
+      return null;
+    }
+
+    canvas.on("mouse:down", function (opt) {
+      const pointer = canvas.getPointer(opt.e);
+      const target = canvas.findTarget(opt.e, false);
+
+      // Check if clicked near any block edge
+      let edgeFound = null;
+      for (const block of blocks) {
+        const edge = getEdgePoint(block, pointer);
+        if (edge) {
+          edgeFound = edge;
+          break;
+        }
+      }
+
+      if (!isConnecting && edgeFound) {
+        // Start drawing
+        isConnecting = true;
+        startPoint = edgeFound;
+      } else if (isConnecting && edgeFound) {
+        // Finish drawing
+        const line = new fabric.Line(
+          [startPoint.x, startPoint.y, edgeFound.x, edgeFound.y],
+          {
+            stroke: "red",
+            strokeWidth: 2,
+            selectable: false,
+            evented: false,
+          }
+        );
+        canvas.add(line);
+        isConnecting = false;
+        startPoint = null;
+      }
+    });
+  </script>
+</body>
+</html>

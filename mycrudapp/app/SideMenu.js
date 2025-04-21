@@ -52,7 +52,9 @@ export default function Layout({ children }) {
     { text: "Dashboard", icon: <HomeIcon />, path: "/" },
     { text: "Create Form", icon: <AddBoxIcon />, path: "/formbuilder" },
     { text: "All Forms", icon: <FormatListBulletedIcon />, path: "/formbuilder/list" },
+    { text: "Drawing Tools", icon: <FormatListBulletedIcon />, path: "/draw" },
     { text: "Display Forms", icon: <FormatListBulletedIcon />, path: "/df" },
+
 
   ];
 

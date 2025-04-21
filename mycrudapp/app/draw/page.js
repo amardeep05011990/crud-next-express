@@ -2,11 +2,19 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import jsPDF from "jspdf";
+import {
+    addDropTarget,
+    addDraggableOption,
+    setupDropDetection,
+  } from "./components/dragDrop" ;//"@/components/dragDrop";
+import { addVideoToCanvas } from "./components/addVideo";
+
 
 const CanvasEditor = () => {
   const canvasRef = useRef(null);
   const fabricRef = useRef(null);
   const pageRefs = useRef([]);
+
 
   const thumbnailCanvases = useRef([]);
 
@@ -29,10 +37,68 @@ const [history, setHistory] = useState([]);
 const [redoStack, setRedoStack] = useState([]);
 
 
+const [playMode, setPlayMode] = useState(false);
+const playModeRef = useRef(false);
+const [newOptionIsCorrect, setNewOptionIsCorrect] = useState(false);
+const [score, setScore] = useState(0);
+const [answeredCount, setAnsweredCount] = useState(0);
+const activePageRef = useRef(activePage);
+const [quizCompleted, setQuizCompleted] = useState(false);
+
+
+
+// useEffect(() => {
+//     console.log("📄 Pages Updated:", pages.length);
+//   }, [pages]);
+
+useEffect(() => {
+    activePageRef.current = activePage;
+  }, [activePage]);
+
+
+
   useEffect(() => {
     import("fabric").then((mod) => {
       const fabric = mod.fabric || mod;
       fabricRef.current = fabric;
+
+      // 🛠 Extend serialization to include custom quiz props
+        fabric.Object.prototype.toObject = (function (toObject) {
+            return function (...args) {
+            return {
+                ...toObject.apply(this, args),
+                quizType: this.quizType || null,
+                isCorrect: this.isCorrect || false,
+                answerId: this.answerId || null,
+                correctId: this.correctId || null,
+            };
+            };
+        })(fabric.Object.prototype.toObject);
+
+        // fabric.Textbox.fromObject = (function (fromObject) {
+        //     return function (object, callback) {
+        //       fromObject.call(this, object, function (instance) {
+        //         instance.quizType = object.quizType || null;
+        //         instance.isCorrect = object.isCorrect || false;
+        //         callback(instance);
+        //       });
+        //     };
+        //   })(fabric.Textbox.fromObject);
+
+        fabric.Textbox.fromObject = (function (fromObject) {
+            return function (object, callback) {
+              return fromObject.call(this, object, function (instance) {
+                instance.quizType = object.quizType || null;
+                instance.isCorrect = object.isCorrect || false;
+                instance.answerId = object.answerId || null;
+                instance.correctId = object.correctId || null;
+                callback(instance);
+              });
+            };
+          })(fabric.Textbox.fromObject);
+          
+          
+  
 
       if (canvasRef.current) {
         canvasRef.current.dispose();
@@ -59,6 +125,100 @@ const [redoStack, setRedoStack] = useState([]);
       canvas.on("object:modified", saveHistory);
 canvas.on("object:added", saveHistory);
 canvas.on("object:removed", saveHistory);
+
+// canvas.on("mouse:down", (e) => {
+//     const obj = e.target;
+//     if (obj?.quizType === "choice") {
+//       obj.isCorrect = !obj.isCorrect;
+//       obj.set("backgroundColor", obj.isCorrect ? "#c8e6c9" : "#e0f7fa");
+//       canvas.renderAll();
+//     }
+//   });
+
+setupDropDetection(fabric, canvas, () => playModeRef, () => {
+    // scoreRef.current += 1;
+    setScore((prev) => prev + 1)
+  });
+
+// canvas.on("mouse:down", (e) => {
+//     const obj = e.target;
+//     console.log("Clicked object:", obj);
+//     console.log("Play mode ON?", playMode);
+//     if (!obj || !playModeRef.current) return;
+//     console.log("Clicked object text:", obj.text);
+//     console.log("Clicked object:", obj);
+//     console.log("quizType:", obj.quizType, "isCorrect:", obj.isCorrect);
+
+//     if (obj.quizType === "choice") {
+//       if (obj.isCorrect) {
+//         obj.set({ fill: "white", backgroundColor: "#81c784" }); // ✅ green
+//       } else {
+//         obj.set({ fill: "white", backgroundColor: "#e57373" }); // ❌ red
+//       }
+
+//         // Freeze interaction
+//         canvas.getObjects().forEach((o) => {
+//             if (o.quizType === "choice") o.selectable = false;
+//         });
+        
+//       canvas.renderAll();
+//     }
+//   });
+  
+// setupDropDetection(fabric, canvas, () => {
+//     scoreRef.current += 1;
+//   });
+  
+
+canvas.on("mouse:down", (e) => {
+    const obj = e.target;
+    if (!obj || !playModeRef.current) return;
+
+    if (obj.quizType === "video") {
+      const videoEl = obj.getElement();
+      videoEl.paused ? videoEl.play() : videoEl.pause();
+    }
+  
+    if (obj.quizType === "choice" /* && !obj.alreadyAnswered*/) {
+    //   obj.alreadyAnswered = true;
+  
+      const isCorrect = obj.isCorrect;
+  
+      obj.set({
+        fill: "white",
+        backgroundColor: isCorrect ? "#81c784" : "#e57373",
+      });
+  
+      if (isCorrect) setScore((prev) => prev + 1);
+      setAnsweredCount((prev) => prev + 1);
+  
+      // Disable all options for this question
+      canvas.getObjects().forEach((o) => {
+        if (o.quizType === "choice") o.set({ selectable: false });
+      });
+  
+      canvas.renderAll();
+  
+      // Optionally show a message on last page
+      const updatedScore = score + (isCorrect ? 1 : 0);
+      const currentPageLength = pageRefs.current.length;
+      let activePage = activePageRef.current;
+
+      console.log("✅ Accurate page count:", currentPageLength, "activePage", activePage);
+
+      if (activePage === currentPageLength - 1 ) { //&& answeredCount + 1 === currentPageLength
+        setTimeout(() => {
+          alert(`✅ Quiz Completed!\nScore: ${updatedScore} / ${currentPageLength}`);
+        setQuizCompleted(true); // ✅ Show score
+
+          setPlayMode(false);
+          playModeRef.current = false;
+        }, 600);
+      }
+    }
+  });
+  
+  
 
       canvas.on("mouse:wheel", function (opt) {
         const delta = opt.e.deltaY;
@@ -174,6 +334,7 @@ canvas.on("object:removed", saveHistory);
     if (saved) {
       canvas.loadFromJSON(saved, () => {
         canvas.renderAll();
+        canvas.requestRenderAll();
         // alert("Canvas loaded from localStorage!");
       });
     }
@@ -463,27 +624,50 @@ const uploadImage = async (e) => {
   };
 
 
-  const switchPage = (index) => {
+//   const switchPage = (index) => {
+//     const canvas = canvasRef.current;
+  
+//     // Save current page
+//     const updatedPages = [...pages];
+//     updatedPages[activePage].json = canvas.toJSON();
+  
+//     // Clear canvas and load new one
+//     canvas.clear();
+//     if (updatedPages[index].json) {
+//       canvas.loadFromJSON(updatedPages[index].json, () => {
+//         canvas.renderAll();
+//       });
+//     }
+  
+//     setPages(updatedPages);
+//     setActivePage(index);
+
+//     renderAllThumbnails();
+
+//   };
+
+const switchPage = (index) => {
     const canvas = canvasRef.current;
   
-    // Save current page
+    // Save current page JSON
     const updatedPages = [...pages];
     updatedPages[activePage].json = canvas.toJSON();
   
-    // Clear canvas and load new one
+    setPages(updatedPages); // ✅ save the new state
+    setActivePage(index);
+  
     canvas.clear();
+  
     if (updatedPages[index].json) {
       canvas.loadFromJSON(updatedPages[index].json, () => {
         canvas.renderAll();
+        canvas.requestRenderAll();
       });
     }
   
-    setPages(updatedPages);
-    setActivePage(index);
-
     renderAllThumbnails();
-
   };
+  
   
   const addPage = () => {
     const newId = pages.length + 1;
@@ -520,6 +704,7 @@ const uploadImage = async (e) => {
     setPages(updated);
     setActivePage(newIndex);
     renderAllThumbnails();
+    canvas.requestRenderAll();
 
   };
   
@@ -665,6 +850,7 @@ const renderAllThumbnails = () => {
         if (parsed[0].json) {
           canvas.loadFromJSON(parsed[0].json, () => {
             canvas.renderAll();
+            canvas.requestRenderAll();
             renderAllThumbnails(); // Refresh thumbs
           });
         }
@@ -730,17 +916,190 @@ const renderAllThumbnails = () => {
       const parsed = JSON.parse(saved);
       setPages(parsed);
       setActivePage(0);
+
+      // Confirm:
+console.log("Loaded pages:", parsed.length); // should be 3 if 3 pages
   
       const canvas = canvasRef.current;
       if (parsed[0]?.json && canvas) {
         canvas.clear();
         canvas.loadFromJSON(parsed[0].json, () => {
           canvas.renderAll();
+          canvas.requestRenderAll();
           renderAllThumbnails();
         });
       }
     }
   }, [canvasReady]);
+  
+  const [unsplashResults, setUnsplashResults] = useState([]);
+
+const UNSPLASH_ACCESS_KEY = "kzDZcMGE_Kv2UdJQ9EBGvHjYdKi1oGIwQ3KgaO6ADuY"; // 🔐 Replace with your key
+
+const searchUnsplash = async (query) => {
+  if (!query) return;
+
+  const res = await fetch(
+    `https://api.unsplash.com/search/photos?page=1&per_page=9&query=${query}&client_id=${UNSPLASH_ACCESS_KEY}`
+  );
+  const data = await res.json();
+
+  const results = data.results.map((item) => ({
+    thumb: item.urls.thumb,
+    full: item.urls.full,
+  }));
+
+  setUnsplashResults(results);
+};
+
+// const addUnsplashToCanvas = (url) => {
+//   const fabric = fabricRef.current;
+//   const canvas = canvasRef.current;
+
+//   fabric.Image.fromURL(url, (img) => {
+//     img.set({ left: 100, top: 100, scaleX: 0.3, scaleY: 0.3 });
+//     canvas.add(img);
+//     canvas.renderAll();
+//   }, { crossOrigin: 'anonymous' });
+// };
+
+const addUnsplashToCanvas = (url) => {
+    const canvas = canvasRef.current;
+    const fabric = fabricRef.current;
+  
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.src = url;
+  
+    img.onload = () => {
+      const fabricImg = new fabric.Image(img, {
+        left: 100,
+        top: 100,
+        scaleX: 0.3,
+        scaleY: 0.3,
+      });
+  
+      canvas.add(fabricImg);
+      canvas.renderAll();
+    };
+  
+    img.onerror = (e) => {
+      console.error("Failed to load Unsplash image:", e);
+    };
+  };
+  
+  const addQuizQuestion = () => {
+    const fabric = fabricRef.current;
+    const canvas = canvasRef.current;
+  
+    const questionBox = new fabric.Textbox("Question goes here...", {
+      left: 50,
+      top: 50,
+      width: 600,
+      fontSize: 20,
+      fill: "#000",
+      backgroundColor: "#fef3bd",
+      editable: true
+    });
+  
+    questionBox.set("quizType", "question"); // attach metadata
+    canvas.add(questionBox);
+  };
+  
+//   const addChoiceOption = (text = "Option") => {
+//     const fabric = fabricRef.current;
+//     const canvas = canvasRef.current;
+  
+//     const option = new fabric.Textbox(text, {
+//       left: 70,
+//       top: 150 + canvas.getObjects().length * 30,
+//       fontSize: 16,
+//       fill: "#000",
+//       backgroundColor: "#e0f7fa"
+//     });
+  
+//     // option.set("quizType", "choice");
+//     // option.set("isCorrect", false); // default
+//     option.quizType = "choice";
+//     option.isCorrect = false;
+//     canvas.add(option);
+//   };
+
+const addChoiceOption = (text = "Option") => {
+    const fabric = fabricRef.current;
+    const canvas = canvasRef.current;
+  
+    const option = new fabric.Textbox(text, {
+      left: 70,
+      top: 150 + canvas.getObjects().length * 30,
+      fontSize: 16,
+      fill: "#000",
+      backgroundColor: "#e0f7fa",
+      padding: 6,
+    });
+  
+    option.quizType = "choice";
+    option.isCorrect = newOptionIsCorrect; // ← from state ✅
+  
+    canvas.add(option);
+    canvas.renderAll();
+  };
+  
+
+//   const togglePlayMode = () => {
+//     const canvas = canvasRef.current;
+//     const isPlay = !playMode;
+  
+//     setPlayMode(isPlay);
+//     canvas.selection = !isPlay;
+  
+//     canvas.getObjects().forEach((obj) => {
+//     //   obj.selectable = !isPlay;
+//     //   obj.editable = !isPlay;
+//     obj.set({
+//         selectable: !isPlay,
+//         editable: !isPlay,
+//         evented: true // 👈 keep this always true!
+//       });
+//     });
+  
+//     canvas.renderAll();
+//   };
+
+const togglePlayMode = () => {
+    const newState = !playMode;
+    setPlayMode(newState);
+    playModeRef.current = newState;
+  
+    const canvas = canvasRef.current;
+    canvas.selection = !newState;
+  
+    // canvas.getObjects().forEach((obj) => {
+    //   obj.set({
+    //     selectable: !newState,
+    //     editable: !newState,
+    //     evented: true,
+    //   });
+    // });
+
+    canvas.getObjects().forEach((obj) => {
+        const isDraggable = obj.quizType === "draggable";
+        const isDropTarget = obj.quizType === "dropTarget";
+    
+        obj.set({
+          selectable: isDraggable ? true : !newState,        // ✅ Draggables should stay selectable
+          hasControls: false,
+          lockMovementX: isDraggable ? false : newState,     // ✅ Lock all except draggables
+          lockMovementY: isDraggable ? false : newState,
+          editable: false,
+          evented: true,
+        });
+      });
+  
+    canvas.renderAll();
+  };
+  
+  
   
 
   return (
@@ -793,8 +1152,99 @@ const renderAllThumbnails = () => {
                 <button onClick={undo}>↩️ Undo</button>
                 <button onClick={redo}>↪️ Redo</button>
 
+                <button onClick={addQuizQuestion}>➕ Add Question</button>
+                <button onClick={() => addChoiceOption("Option 1")}>➕ Add Choice</button>
+                <input
+                type="checkbox"
+                checked={newOptionIsCorrect}
+                onChange={(e) => setNewOptionIsCorrect(e.target.checked)}
+                id="isCorrectOption"
+                />
+                <label htmlFor="isCorrectOption">Mark as Correct</label>
+
+                <button onClick={() => addDropTarget(fabricRef.current, canvasRef.current)}>🎯 Add Drop Zone</button>
+                <button onClick={() => addDraggableOption(fabricRef.current, canvasRef.current, "India", "answer1")}>🧩 Add Option</button>
 
 
+                <button
+                  onClick={() =>
+                    addVideoToCanvas(
+                      fabricRef.current,
+                      canvasRef.current,
+                      "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
+                    )
+                  }
+                >
+                  🎥 Add Video
+                </button>
+
+
+                <button onClick={togglePlayMode}>
+                {playMode ? "🎨 Exit Play Mode" : "▶️ Play Quiz"}
+                </button>
+
+
+
+
+
+
+        </div>
+
+        <div style={{ marginBottom: 10 }}>
+            <input
+                type="text"
+                placeholder="Search Unsplash..."
+                onChange={(e) => searchUnsplash(e.target.value)}
+                style={{ padding: 6, width: 220 }}
+            />
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 10 }}>
+                {unsplashResults.map((img, i) => (
+                <img
+                    key={i}
+                    src={img.thumb}
+                    alt="Unsplash"
+                    width={80}
+                    height={80}
+                    style={{ cursor: "pointer", objectFit: "cover", border: "1px solid #ccc" }}
+                    onClick={() => addUnsplashToCanvas(img.full)}
+                />
+                ))}
+            </div>
+        </div>
+
+        <button
+        disabled={activePage === 0}
+        onClick={() => switchPage(activePage - 1)}
+        >
+        ⬅️ Previous
+        </button>
+
+        <button
+        disabled={activePage === pages.length - 1}
+        onClick={() => switchPage(activePage + 1)}
+        >
+        ➡️ Next
+        </button>
+
+        {quizCompleted && (
+        <div style={{ padding: 20, background: "#f1f1f1", borderRadius: 8 }}>
+            <h2>🎉 Quiz Completed!</h2>
+            <p>✅ Your Score: <strong>{score} / {pages.length}</strong></p>
+            <button
+            onClick={() => {
+                setQuizCompleted(false);
+                setAnsweredCount(0);
+                setScore(0);
+                switchPage(0);
+            }}
+            >
+            🔁 Restart Quiz
+            </button>
+        </div>
+        )}
+
+        <div>
+        🧮 Progress: {answeredCount} / {pages.length}
         </div>
 
 
@@ -836,6 +1286,8 @@ const renderAllThumbnails = () => {
                     ))}
                 </div>
       </div>
+
+
 
     </div>
   );
