@@ -128,11 +128,11 @@ const collections = nodes.map((node) => ({
   };
 
   console.log("output", output)
-//   const blob = new Blob([JSON.stringify(output, null, 2)], {
-//     type: 'application/json',
-//   });
+  const blob = new Blob([JSON.stringify(output, null, 2)], {
+    type: 'application/json',
+  });
 
-//   saveAs(blob, 'schema.json');
+  saveAs(blob, 'schema.json');
 };
 
 

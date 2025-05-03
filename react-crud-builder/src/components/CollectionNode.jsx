@@ -97,7 +97,7 @@ const CollectionNode = ({ data, id }) => {
   const [editingName, setEditingName] = useState(false);
   const [name, setName] = useState(data.name || `Collection-${id}`);
   const [fields, setFields] = useState(data.fields || []);
-  const [newField, setNewField] = useState({ name: "", type: "string" });
+  const [newField, setNewField] = useState({ name: "", type: "String" });
 
   const updateParent = (updatedFields) => {
     setFields(updatedFields);
@@ -108,7 +108,7 @@ const CollectionNode = ({ data, id }) => {
     if (newField.name) {
       const updated = [...fields, newField];
       updateParent(updated);
-      setNewField({ name: "", type: "string" });
+      setNewField({ name: "", type: "String" });
     }
   };
 
@@ -160,12 +160,12 @@ const CollectionNode = ({ data, id }) => {
               onChange={(e) => updateField(i, "type", e.target.value)}
               style={{ width: "35%", marginLeft: "2%" }}
             >
-              <option value="string">string</option>
-              <option value="number">number</option>
-              <option value="boolean">boolean</option>
-              <option value="date">date</option>
-              <option value="object">object</option>
-              <option value="array">array</option>
+              <option value="String">String</option>
+              <option value="Number">Number</option>
+              <option value="Boolean">boolean</option>
+              <option value="Date">date</option>
+              <option value="Object">object</option>
+              <option value="Array">array</option>
             </select>
             <button onClick={() => deleteField(i)} style={{ marginLeft: 4 }}>🗑️</button>
           </li>
@@ -184,12 +184,12 @@ const CollectionNode = ({ data, id }) => {
           onChange={(e) => setNewField({ ...newField, type: e.target.value })}
           style={{ width: "38%", marginLeft: "2%" }}
         >
-          <option value="string">string</option>
-          <option value="number">number</option>
-          <option value="boolean">boolean</option>
-          <option value="date">date</option>
-          <option value="object">object</option>
-          <option value="array">array</option>
+              <option value="String">String</option>
+              <option value="Number">Number</option>
+              <option value="Boolean">boolean</option>
+              <option value="Date">date</option>
+              <option value="Object">object</option>
+              <option value="Array">array</option>
         </select>
         <button onClick={addField}>➕</button>
       </div>
