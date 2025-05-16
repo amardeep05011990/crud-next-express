@@ -2,14 +2,47 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const swaggerUi = require("swagger-ui-express");
+const swaggerJsdoc = require("swagger-jsdoc");
+const swaggerSpec = require("./swaggerspec");
+
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect("mongodb://localhost:27017/autogen_crud");
+// MongoDB URI
+const mongoURI = 'mongodb://localhost:27017/autogen_crud';
+mongoose.connect(mongoURI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}).then(() => console.log("MongoDB connected"))
+  .catch(err => console.error("MongoDB connection error:", err));
 
-app.use("/api/user", require("./routes/user.routes"));
-app.use("/api/post", require("./routes/post.routes"));
+// // Swagger setup
+// const swaggerSpec = swaggerJsdoc({
+//   definition: {
+//     openapi: "3.0.0",
+//     info: {
+//       title: "Auto-Generated CRUD API",
+//       version: "1.0.0",
+//     },
+//     components: {
+//       schemas: {
+// 
+//       }
+//     }
+//   },
+//   apis: ["./routes/*.js"],
+// });
+
+// app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// Swagger UI
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+app.use("/api/users", require("./routes/users.routes"));
+app.use("/api/posts", require("./routes/posts.routes"));
+app.use("/api/comments", require("./routes/comments.routes"));
 
 app.listen(5000, () => console.log("Server running on port 5000"));

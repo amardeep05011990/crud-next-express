@@ -11,10 +11,6 @@
         {
           "name": "age",
           "type": "String"
-        },
-        {
-          "name": "email",
-          "type": "String"
         }
       ]
     },
@@ -24,17 +20,7 @@
       "fields": [
         {
           "name": "title",
-          "type": "String",
-          "validation": {
-            "required": {
-              "value": true,
-              "message": "title field is required"
-            },
-            "min": {
-              "value": 2,
-              "message": ""
-            }
-          }
+          "type": "String"
         },
         {
           "name": "description",
@@ -47,7 +33,7 @@
       "name": "comments",
       "fields": [
         {
-          "name": "commentDescription",
+          "name": "content",
           "type": "String"
         }
       ]

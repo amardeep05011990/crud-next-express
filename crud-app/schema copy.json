@@ -1,0 +1,42 @@
+{
+    "collections": [
+      {
+        "id": "2d0ba97a-41ed-4c7c-be77-7c440a4aac5f",
+        "name": "user",
+        "fields": [
+          {
+            "name": "name",
+            "type": "String"
+          },
+          {
+            "name": "email",
+            "type": "String"
+          }
+        ]
+      },
+      {
+        "id": "05149867-01d4-44f6-b666-2fcc9f939196",
+        "name": "post",
+        "fields": [
+          {
+            "name": "title",
+            "type": "String"
+          },
+          {
+            "name": "description",
+            "type": "String"
+          }
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "relationType": "one-to-many",
+        "from": "2d0ba97a-41ed-4c7c-be77-7c440a4aac5f",
+        "to": "05149867-01d4-44f6-b666-2fcc9f939196",
+        "label": "_id → userid (one-to-one)",
+        "fromField": "_id",
+        "toField": "userid"
+      }
+    ]
+  }

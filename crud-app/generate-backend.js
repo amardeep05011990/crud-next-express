@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const swaggerSpecObject = require("./swaggerspec");
 
 function createMongooseSchema(fields) {
   return fields
@@ -36,22 +37,43 @@ function generateModels(collections, relations) {
 //         folder: 'models',
 //       };
 //     });
+console.log("collections", collections)
 return collections.map((col) => {
   const schemaFields = createMongooseSchema(col.fields);
 
   const related = relations
     .filter((r) => r.from === col.id || r.to === col.id)
     .map((r) => {
+      console.log("related data", r)
       const isFrom = r.from === col.id;
-      const relatedCollectionId = isFrom ? r.to : r.from;
+      const relatedCollectionId = isFrom ? r.to: r.from;
 
       // Lookup the name of the related collection
       const relatedCollection = collections.find(c => c.id === relatedCollectionId);
       const relatedName = relatedCollection ? relatedCollection.name : 'Unknown';
 
-      const fieldName = isFrom ? r.toField : r.fromField;
+      const fieldName = isFrom ? r.fromField : r.toField;
 
-      return `  ${fieldName}: { type: mongoose.Schema.Types.ObjectId, ref: "${relatedName}" }`;
+      // const fromFieldName = r.fromField;
+      // let fromFieldCollectionName ;
+      // if(r.from == col.id){
+      //   fromFieldCollectionName =  relations.find((rel)=> {
+      //     console.log("rel", rel)
+      //   })
+      // }
+      // const toFieldName = r.toField;
+      // console.log("fromField data", fromFieldName, fromFieldCollectionName)
+if (r.relationType === 'one-to-many') {
+        if(r.from == col.id){
+              return `  ${relatedName}: [{ type: mongoose.Schema.Types.ObjectId, ref: "${relatedName}" }]`;
+        }else if(r.to == col.id){
+              return `  ${relatedName}: { type: mongoose.Schema.Types.ObjectId, ref: "${relatedName}" }`; 
+        }
+      }else if (r.relationType === 'many-to-many') {
+        return `  ${relatedName}: [{ type: mongoose.Schema.Types.ObjectId, ref: "${relatedName}" }]`;
+      }else if (r.relationType === 'one-to-one') {
+        return `  ${relatedName}: { type: mongoose.Schema.Types.ObjectId, ref: "${relatedName}" }`;
+      }
     })
     .join(',\n');
 
@@ -75,40 +97,182 @@ module.exports = mongoose.model("${col.name}", ${col.name}Schema);
 
 }
 
+// function generateRoutes(collections) {
+//   return collections.map((col) => {
+//     const lc = col.name.toLowerCase();
+//     const content = `
+// const express = require("express");
+// const router = express.Router();
+// const ${col.name} = require("../models/${col.name}");
+
+// // CREATE
+// router.post("/", async (req, res) => {
+//   const item = new ${col.name}(req.body);
+//   const saved = await item.save();
+//   res.json(saved);
+// });
+
+// // READ ALL
+// router.get("/", async (req, res) => {
+//   const items = await ${col.name}.find();
+//   res.json(items);
+// });
+
+// // READ ONE
+// router.get("/:id", async (req, res) => {
+//   const item = await ${col.name}.findById(req.params.id);
+//   res.json(item);
+// });
+
+// // UPDATE
+// router.put("/:id", async (req, res) => {
+//   const updated = await ${col.name}.findByIdAndUpdate(req.params.id, req.body, { new: true });
+//   res.json(updated);
+// });
+
+// // DELETE
+// router.delete("/:id", async (req, res) => {
+//   await ${col.name}.findByIdAndDelete(req.params.id);
+//   res.json({ message: "${col.name} deleted" });
+// });
+
+// module.exports = router;
+// `;
+
+//     return {
+//       fileName: `${lc}.routes.js`,
+//       content,
+//       folder: 'routes',
+//     };
+//   });
+// }
+
 function generateRoutes(collections) {
   return collections.map((col) => {
     const lc = col.name.toLowerCase();
     const content = `
 const express = require("express");
+const { ${col.name}Validator } = require("../validators/${lc}.validator");
+const validate = require("../middlewares/validate");
 const router = express.Router();
 const ${col.name} = require("../models/${col.name}");
 
+/**
+ * @swagger
+ * tags:
+ *   name: ${col.name}
+ *   description: CRUD operations for ${col.name}
+ */
+
 // CREATE
-router.post("/", async (req, res) => {
+/**
+ * @swagger
+ * /api/${lc}:
+ *   post:
+ *     summary: Create a new ${col.name}
+ *     tags: [${col.name}]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/${col.name}'
+ *     responses:
+ *       200:
+ *         description: The created ${col.name}
+ */
+router.post("/", ${col.name}Validator, validate, async (req, res) => {
   const item = new ${col.name}(req.body);
   const saved = await item.save();
   res.json(saved);
 });
 
 // READ ALL
+/**
+ * @swagger
+ * /api/${lc}:
+ *   get:
+ *     summary: Get all ${col.name}
+ *     tags: [${col.name}]
+ *     responses:
+ *       200:
+ *         description: List of ${col.name}
+ */
 router.get("/", async (req, res) => {
   const items = await ${col.name}.find();
   res.json(items);
 });
 
 // READ ONE
+/**
+ * @swagger
+ * /api/${lc}/{id}:
+ *   get:
+ *     summary: Get a ${col.name} by ID
+ *     tags: [${col.name}]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ${col.name} ID
+ *     responses:
+ *       200:
+ *         description: The ${col.name} data
+ */
 router.get("/:id", async (req, res) => {
   const item = await ${col.name}.findById(req.params.id);
   res.json(item);
 });
 
 // UPDATE
-router.put("/:id", async (req, res) => {
+/**
+ * @swagger
+ * /api/${lc}/{id}:
+ *   put:
+ *     summary: Update a ${col.name} by ID
+ *     tags: [${col.name}]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ${col.name} ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/${col.name}'
+ *     responses:
+ *       200:
+ *         description: The updated ${col.name}
+ */
+router.put("/:id", ${col.name}Validator, validate, async (req, res) => {
   const updated = await ${col.name}.findByIdAndUpdate(req.params.id, req.body, { new: true });
   res.json(updated);
 });
 
 // DELETE
+/**
+ * @swagger
+ * /api/${lc}/{id}:
+ *   delete:
+ *     summary: Delete a ${col.name} by ID
+ *     tags: [${col.name}]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ${col.name} ID
+ *     responses:
+ *       200:
+ *         description: ${col.name} deleted
+ */
 router.delete("/:id", async (req, res) => {
   await ${col.name}.findByIdAndDelete(req.params.id);
   res.json({ message: "${col.name} deleted" });
@@ -116,7 +280,6 @@ router.delete("/:id", async (req, res) => {
 
 module.exports = router;
 `;
-
     return {
       fileName: `${lc}.routes.js`,
       content,
@@ -125,21 +288,106 @@ module.exports = router;
   });
 }
 
+
+// function generateServerFile(collections) {
+//   const imports = collections
+//     .map((c) => `app.use("/api/${c.name.toLowerCase()}", require("./routes/${c.name.toLowerCase()}.routes"));`)
+//     .join('\n');
+
+//   const content = `
+// const express = require("express");
+// const mongoose = require("mongoose");
+// const cors = require("cors");
+
+// const app = express();
+// app.use(cors());
+// app.use(express.json());
+
+// // mongoose.connect("mongodb://localhost:27017/autogen_crud");
+// // MongoDB Connection URI
+// const mongoURI = 'mongodb://localhost:27017/autogen_crud'; // replace with your URI
+// // Connect to MongoDB
+// mongoose.connect(mongoURI, {
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true
+// })
+// .then(() => console.log('MongoDB connected'))
+// .catch(err => console.error('MongoDB connection error:', err));
+
+// ${imports}
+
+// app.listen(5000, () => console.log("Server running on port 5000"));
+// `;
+
+//   return {
+//     fileName: 'server.js',
+//     content,
+//     folder: '',
+//   };
+// }
+
 function generateServerFile(collections) {
   const imports = collections
     .map((c) => `app.use("/api/${c.name.toLowerCase()}", require("./routes/${c.name.toLowerCase()}.routes"));`)
     .join('\n');
 
+//   const schemaDefs = collections
+//     .map((c) => {
+//       const props = c.fields.map(f => `        ${f.name}: { type: "${f.type}" }`).join(',\n');
+//       return `
+//         ${c.name}: {
+//           type: "object",
+//           properties: {
+// ${props}
+//           }
+//         }
+//       `;
+//     })
+//     .join(',\n');
+const schemaDefs ="";
+
   const content = `
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const swaggerUi = require("swagger-ui-express");
+const swaggerJsdoc = require("swagger-jsdoc");
+const swaggerSpec = require("./swaggerspec");
+
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect("mongodb://localhost:27017/autogen_crud");
+// MongoDB URI
+const mongoURI = 'mongodb://localhost:27017/autogen_crud';
+mongoose.connect(mongoURI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}).then(() => console.log("MongoDB connected"))
+  .catch(err => console.error("MongoDB connection error:", err));
+
+// // Swagger setup
+// const swaggerSpec = swaggerJsdoc({
+//   definition: {
+//     openapi: "3.0.0",
+//     info: {
+//       title: "Auto-Generated CRUD API",
+//       version: "1.0.0",
+//     },
+//     components: {
+//       schemas: {
+// ${schemaDefs}
+//       }
+//     }
+//   },
+//   apis: ["./routes/*.js"],
+// });
+
+// app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// Swagger UI
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 ${imports}
 
@@ -153,6 +401,104 @@ app.listen(5000, () => console.log("Server running on port 5000"));
   };
 }
 
+
+// generate a file called middlewares/validate.js
+const validateMiddleware = {
+  fileName: "validate.js",
+  folder: "middlewares",
+  content: `
+const { validationResult } = require("express-validator");
+
+module.exports = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+  next();
+};`
+};
+
+function generateValidators(collections) {
+  return collections.map(col => {
+    const rules = col.fields
+      .filter(f => f.validation)
+      .map(f => {
+        const validations = [];
+        const v = f.validation;
+
+        if (v.required?.value)
+          validations.push(`body("${f.name}").notEmpty().withMessage("${v.required.message || f.name + ' is required'}")`);
+        if (v.min?.value)
+          validations.push(`body("${f.name}").isLength({ min: ${v.min.value} }).withMessage("${v.min.message || f.name + ' is too short'}")`);
+        if (v.max?.value)
+          validations.push(`body("${f.name}").isLength({ max: ${v.max.value} }).withMessage("${v.max.message || f.name + ' is too long'}")`);
+
+        return validations.join(",\n  ");
+      }).filter(Boolean).join(",\n  ");
+
+    const validatorCode = `
+const { body } = require("express-validator");
+
+exports.${col.name}Validator = [
+  ${rules}
+];
+`;
+
+    return {
+      fileName: `${col.name.toLowerCase()}.validator.js`,
+      content: validatorCode,
+      folder: "validators"
+    };
+  });
+}
+
+const swaggerSpecFile = {
+  fileName: "swaggerspec.js",
+  folder: "",
+  content: `
+const swaggerJsdoc = require("swagger-jsdoc");
+const mongooseToSwagger = require("mongoose-to-swagger");
+const fs = require("fs");
+const path = require("path");
+
+// Dynamically load all models
+const modelsPath = path.join(__dirname, "./models");
+const files = fs.readdirSync(modelsPath);
+
+// Generate Swagger schemas from Mongoose models
+const schemas = {};
+
+files.forEach((file) => {
+  if (file.endsWith(".js")) {
+    const modelName = path.basename(file, ".js");
+    const model = require(\`./models/\${modelName}\`);
+    const swaggerSchema = mongooseToSwagger(model);
+    schemas[modelName] = swaggerSchema;
+  }
+});
+
+// Swagger configuration
+const swaggerSpec = swaggerJsdoc({
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Auto-Generated CRUD API",
+      version: "1.0.0",
+    },
+    components: {
+      schemas, // Inject the generated schemas here
+    },
+  },
+  apis: ["./routes/*.js"], // path to your route files with Swagger comments
+});
+
+module.exports = swaggerSpec;
+`
+};
+
+
+
+
 // 🔥 Run this
 function generateBackendFiles(schema) {
   const basePath = path.join(__dirname, 'backendapp');
@@ -160,8 +506,11 @@ function generateBackendFiles(schema) {
 
   const files = [
     ...generateModels(collections, relations),
+     ...generateValidators(collections), 
     ...generateRoutes(collections),
     generateServerFile(collections),
+    validateMiddleware,
+    swaggerSpecFile
   ];
 
   files.forEach(({ fileName, content, folder }) => {
@@ -177,3 +526,15 @@ const schema = require("./schema.json"); // 👈 your generated file
 
 generateBackendFiles(schema);
 
+
+// Note-- some important points
+
+// // In users model
+// usersSchema.virtual("myPosts", {
+//   ref: "posts",
+//   localField: "_id",
+//   foreignField: "users"
+// });
+
+// usersSchema.set("toObject", { virtuals: true });
+// usersSchema.set("toJSON", { virtuals: true });

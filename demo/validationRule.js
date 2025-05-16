@@ -1,4 +1,4 @@
-const {query} = require('express-validator');
+const {query, body} = require('express-validator');
 
 
     const validationRule =  [
@@ -6,5 +6,6 @@ const {query} = require('express-validator');
             query('age').notEmpty().withMessage('please enter the age')
 
         ]
+    const  validationRuleForPost=[body('name').notEmpty().withMessage('please enter the name')];
 
-    module.exports = {validationRule}
+    module.exports = {validationRule, validationRuleForPost}

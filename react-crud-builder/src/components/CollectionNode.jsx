@@ -98,6 +98,7 @@ const CollectionNode = ({ data, id }) => {
   const [name, setName] = useState(data.name || `Collection-${id}`);
   const [fields, setFields] = useState(data.fields || []);
   const [newField, setNewField] = useState({ name: "", type: "String" });
+const validationOptions = ["required", "min", "max", "minLength", "maxLength"];
 
   const updateParent = (updatedFields) => {
     setFields(updatedFields);
@@ -168,6 +169,77 @@ const CollectionNode = ({ data, id }) => {
               <option value="Array">array</option>
             </select>
             <button onClick={() => deleteField(i)} style={{ marginLeft: 4 }}>🗑️</button>
+
+
+<details style={{ marginTop: 5 }}>
+  <summary>🛡️ Validations</summary>
+  {validationOptions.map((rule) => {
+    const val = f.validation?.[rule]?.value ?? (rule === "required" ? false : "");
+    const msg = f.validation?.[rule]?.message ?? "";
+
+    return (
+      <div key={rule} style={{ marginTop: 5 }}>
+        <label style={{ display: "block", fontWeight: "bold" }}>{rule}</label>
+        {rule === "required" ? (
+          <>
+            <label>
+              <input
+                type="checkbox"
+                checked={val}
+                onChange={(e) =>
+                  updateField(i, "validation", {
+                    ...f.validation,
+                    [rule]: {
+                      value: e.target.checked,
+                      message: f.validation?.[rule]?.message || "",
+                    },
+                  })
+                }
+              />{" "}
+              Enabled
+            </label>
+          </>
+        ) : (
+          <>
+            <input
+              type="number"
+              placeholder="Value"
+              value={val}
+              onChange={(e) =>
+                updateField(i, "validation", {
+                  ...f.validation,
+                  [rule]: {
+                    value: e.target.value === "" ? "" : parseInt(e.target.value),
+                    message: f.validation?.[rule]?.message || "",
+                  },
+                })
+              }
+              style={{ width: 60, marginRight: 6 }}
+            />
+          </>
+        )}
+        <input
+          type="text"
+          placeholder="Message"
+          value={msg}
+          onChange={(e) =>
+            updateField(i, "validation", {
+              ...f.validation,
+              [rule]: {
+                value: val,
+                message: e.target.value,
+              },
+            })
+          }
+          style={{ width: "60%", marginLeft: 4 }}
+        />
+      </div>
+    );
+  })}
+</details>
+
+
+
           </li>
         ))}
       </ul>
