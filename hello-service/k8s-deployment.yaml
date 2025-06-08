@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-microservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: node-microservice
+  template:
+    metadata:
+      labels:
+        app: node-microservice
+    spec:
+      containers:
+        - name: node-microservice
+          image: amardeep05011990/node-microservice:latest
+          ports:
+            - containerPort: 3000

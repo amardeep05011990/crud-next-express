@@ -239,6 +239,68 @@ const validationOptions = ["required", "min", "max", "minLength", "maxLength"];
 </details>
 
 
+<details style={{ marginTop: 5 }}>
+  <summary>🧾 Form Config</summary>
+
+  <div style={{ marginTop: 6 }}>
+    <label>Input Type:</label>
+    <select
+      value={f.form?.input || "text"}
+      onChange={(e) =>
+        updateField(i, "form", {
+          ...f.form,
+          input: e.target.value,
+          options: ["select", "radio", "multiselect"].includes(e.target.value)
+            ? f.form?.options || ["Option 1", "Option 2"]
+            : [],
+        })
+      }
+    >
+      <option value="text">Text</option>
+      <option value="select">Select</option>
+      <option value="autocomplete">Autocomplete</option>
+      <option value="multiselect">Multi Select</option>
+      <option value="radio">Radio</option>
+      <option value="checkbox">Checkbox</option>
+    </select>
+  </div>
+
+  {["select", "radio", "multiselect"].includes(f.form?.input) && (
+    <div style={{ marginTop: 6 }}>
+      <label>Options (comma-separated):</label>
+      <input
+        type="text"
+        value={f.form?.options?.join(", ") || ""}
+        onChange={(e) =>
+          updateField(i, "form", {
+            ...f.form,
+            options: e.target.value.split(",").map((opt) => opt.trim()),
+          })
+        }
+        style={{ width: "100%" }}
+      />
+    </div>
+  )}
+
+  <div style={{ marginTop: 6 }}>
+    <label>Grid (12-based):</label>
+    <input
+      type="number"
+      value={f.form?.grid || 12}
+      min={1}
+      max={12}
+      onChange={(e) =>
+        updateField(i, "form", {
+          ...f.form,
+          grid: parseInt(e.target.value),
+        })
+      }
+    />
+  </div>
+</details>
+
+
+
 
           </li>
         ))}

@@ -1,5 +1,5 @@
 // src/FlowCanvas.js
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import ReactFlow, {
   addEdge,
   MiniMap,
@@ -13,6 +13,7 @@ import Sidebar from './Sidebar';
 import CollectionNode from './CollectionNode';
 import { v4 as uuidv4 } from 'uuid';
 import { saveAs } from 'file-saver';
+import { saveSchemaToLocalStorage, loadSchemaFromLocalStorage } from './utils/schemaStorage';
 
 
 const nodeTypes = {
@@ -28,6 +29,42 @@ const [selectedEdge, setSelectedEdge] = useState(null);
 const [relationType, setRelationType] = useState("one-to-one");
 const [fromField, setFromField] = useState("");
 const [toField, setToField] = useState("");
+
+
+useEffect(() => {
+  const savedSchema = loadSchemaFromLocalStorage();
+  if (savedSchema) {
+    const { collections, relations } = savedSchema;
+
+    const loadedNodes = collections.map((col, i) => ({
+      id: col.id,
+      type: 'collection',
+      position: { x: 100 + i * 200, y: 100 + i * 50 }, // simple layout
+      data: {
+        name: col.name,
+        label: col.name,
+        fields: col.fields || [],
+      },
+    }));
+
+    const loadedEdges = relations.map((rel) => ({
+      id: `e-${rel.from}-${rel.to}`,
+      source: rel.from,
+      target: rel.to,
+      label: rel.label || '',
+      animated: true,
+      style: { stroke: '#2196f3' },
+      data: {
+        relationType: rel.relationType,
+        from: rel.fromField,
+        to: rel.toField,
+      },
+    }));
+
+    setNodes(loadedNodes);
+    setEdges(loadedEdges);
+  }
+}, []);
 
 
   const onConnect = useCallback((params) => {
@@ -127,6 +164,10 @@ const collections = nodes.map((node) => ({
     relations,
   };
 
+  
+  // Save to localStorage
+  saveSchemaToLocalStorage(output);
+
   console.log("output", output)
   const blob = new Blob([JSON.stringify(output, null, 2)], {
     type: 'application/json',
@@ -135,10 +176,60 @@ const collections = nodes.map((node) => ({
   saveAs(blob, 'schema.json');
 };
 
+const handleUploadSchema = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    const text = event.target.result;
+    try {
+      const parsed = JSON.parse(text);
+      saveSchemaToLocalStorage(parsed); // Optional: persist again
+      const { collections, relations } = parsed;
+
+      const uploadedNodes = collections.map((col, i) => ({
+        id: col.id,
+        type: 'collection',
+        position: { x: 100 + i * 200, y: 100 + i * 50 },
+        data: {
+          name: col.name,
+          label: col.name,
+          fields: col.fields || [],
+        },
+      }));
+
+      const uploadedEdges = relations.map((rel) => ({
+        id: `e-${rel.from}-${rel.to}-${Date.now()}`,
+        source: rel.from,
+        target: rel.to,
+        label: rel.label || '',
+        animated: true,
+        style: { stroke: '#2196f3' },
+        data: {
+          relationType: rel.relationType,
+          from: rel.fromField,
+          to: rel.toField,
+        },
+      }));
+
+      setNodes(uploadedNodes);
+      setEdges(uploadedEdges);
+    } catch (err) {
+      alert('Invalid JSON file!');
+    }
+  };
+  reader.readAsText(file);
+};
+
+
 
   return (
+    
     <div style={{ display: 'flex', height: '100vh' }}>
       <Sidebar onDragStart={onDragStart} />
+      <input type="file" accept="application/json" onChange={handleUploadSchema} />
+
       <button onClick={() => generateBackend(nodes, edges)}>💾 Generate Backend</button>
 
       <div style={{ flexGrow: 1 }} onDrop={onDrop} onDragOver={onDragOver}>

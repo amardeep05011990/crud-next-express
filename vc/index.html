@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>VR Chair Sync</title>
+  <style>
+    body { margin: 0; background: black; }
+    video { width: 100vw; height: 100vh; object-fit: cover; }
+  </style>
+</head>
+<body>
+  <video id="vrVideo" autoplay controls>
+    <source src="rollercoaster1.mp4" type="video/mp4" />
+    Your browser does not support HTML5 video.
+  </video>
+
+  <script>
+    const socket = new WebSocket("ws://localhost:8080");
+    const video = document.getElementById("vrVideo");
+
+    socket.onopen = () => console.log("Connected to server");
+
+    video.ontimeupdate = () => {
+      const t = video.currentTime;
+      let pitch = 90, roll = 90;
+
+      if (t < 3) { pitch = 90; roll = 90; }
+      else if (t < 6) { pitch = 60; roll = 90; }
+      else if (t < 9) { pitch = 120; roll = 90; }
+      else if (t < 12) { pitch = 90; roll = 60; }
+      else if (t < 15) { pitch = 90; roll = 120; }
+
+      socket.send(JSON.stringify({ pitch, roll }));
+    };
+  </script>
+</body>
+</html>

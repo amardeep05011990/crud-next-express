@@ -41,8 +41,9 @@ mongoose.connect(mongoURI, {
 // Swagger UI
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+app.use("/api/students", require("./routes/students.routes"));
+app.use("/api/assignments", require("./routes/assignments.routes"));
 app.use("/api/users", require("./routes/users.routes"));
 app.use("/api/posts", require("./routes/posts.routes"));
-app.use("/api/comments", require("./routes/comments.routes"));
 
 app.listen(5000, () => console.log("Server running on port 5000"));

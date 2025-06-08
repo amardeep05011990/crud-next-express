@@ -150,6 +150,8 @@ module.exports = mongoose.model("${col.name}", ${col.name}Schema);
 function generateRoutes(collections) {
   return collections.map((col) => {
     const lc = col.name.toLowerCase();
+        // Define searchable fields (you can customize this later to mark which fields are searchable)
+    const searchableFields = col.fields.map((f) => f.name);
     const content = `
 const express = require("express");
 const { ${col.name}Validator } = require("../validators/${lc}.validator");
@@ -194,13 +196,85 @@ router.post("/", ${col.name}Validator, validate, async (req, res) => {
  *   get:
  *     summary: Get all ${col.name}
  *     tags: [${col.name}]
+ *     parameters:
+ *       - in: query
+ *         name: name
+ *         schema:
+ *           type: string
+ *         description: Filter by name
+ *       - in: query
+ *         name: email
+ *         schema:
+ *           type: string
+ *         description: Filter by email
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [active, inactive]
+ *         description: Filter by status
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *         description: Field to sort by
+ *       - in: query
+ *         name: order
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *         description: Sort order
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         description: Limit number of results
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         description: Page number for pagination
  *     responses:
  *       200:
  *         description: List of ${col.name}
  */
+// router.get("/", async (req, res) => {
+//   const items = await ${col.name}.find();
+//   res.json(items);
+// });
+
+// READ ALL with search, filter, and pagination
 router.get("/", async (req, res) => {
-  const items = await ${col.name}.find();
-  res.json(items);
+  try {
+    const { page = 1, limit = 10, search, ...filters } = req.query;
+    const query = {};
+
+    // Add filters
+    Object.keys(filters).forEach((key) => {
+      query[key] = filters[key];
+    });
+
+    // Add search on all string fields
+    if (search) {
+      query["$or"] = ${JSON.stringify(searchableFields)}.map((field) => ({
+        [field]: { $regex: search, $options: "i" }
+      }));
+    }
+
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const total = await ${col.name}.countDocuments(query);
+    const data = await ${col.name}.find(query).skip(skip).limit(parseInt(limit));
+
+    res.json({
+      data,
+      total,
+      page: parseInt(page),
+      limit: parseInt(limit),
+      totalPages: Math.ceil(total / limit)
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // READ ONE

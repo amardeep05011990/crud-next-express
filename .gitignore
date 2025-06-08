@@ -5,6 +5,11 @@ haxe/Openfl/haxeui/export
 haxe/Openfl/MyCrudApp/export
 haxe/Openfl/MyFeatherApp/export
 haxe/Openfl/MyHaxeUiApp/export
+mediasoup/node_modules
+mediasoup/mediasoup3/node_modules
+mediasoup/mediasoup3/example1/node_modules
+
+
 
 
 
