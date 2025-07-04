@@ -1,0 +1,68 @@
+#include <Servo.h>
+
+// Define servos
+Servo frontLeft;
+Servo frontRight;
+Servo rearLeft;
+Servo rearRight;
+
+int pitch = 90;
+int roll = 90;
+
+void setup() {
+  Serial.begin(9600);
+
+  // Attach servos to PWM pins
+  frontLeft.attach(3);   // adjust pins as needed
+  frontRight.attach(5);
+  rearLeft.attach(6);
+  rearRight.attach(9);
+
+  // Move all to neutral position
+  moveServos(90, 90);
+}
+
+void loop() {
+  static String input = "";
+
+  while (Serial.available()) {
+    char c = Serial.read();
+
+    if (c == '\n') {
+      parseAndMove(input);
+      input = "";
+    } else {
+      input += c;
+    }
+  }
+}
+
+void parseAndMove(String cmd) {
+  cmd.trim();  // Remove extra spaces or \r
+
+  if (cmd.startsWith("P:") && cmd.indexOf("R:") > 0) {
+    int pIndex = cmd.indexOf("P:");
+    int rIndex = cmd.indexOf("R:");
+
+    pitch = cmd.substring(pIndex + 2, rIndex).toInt();
+    roll = cmd.substring(rIndex + 2).toInt();
+
+    moveServos(pitch, roll);
+  }
+}
+
+void moveServos(int pitch, int roll) {
+  // Example mapping logic — customize this
+  int FL = constrain(pitch + roll - 90, 0, 180);  // Front Left
+  int FR = constrain(pitch - roll + 90, 0, 180);  // Front Right
+  int RL = constrain(-pitch + roll + 90, 0, 180); // Rear Left
+  int RR = constrain(-pitch - roll + 90, 0, 180); // Rear Right
+
+  frontLeft.write(FL);
+  frontRight.write(FR);
+  rearLeft.write(RL);
+  rearRight.write(RR);
+
+  Serial.print("Set P:"); Serial.print(pitch);
+  Serial.print(" R:"); Serial.println(roll);
+}

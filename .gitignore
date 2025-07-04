@@ -1,0 +1,20 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+node_modules
+express-backend/node_modules
+haxe/HelloWorld/export
+haxe/Openfl/haxeui/export
+haxe/Openfl/MyCrudApp/export
+haxe/Openfl/MyFeatherApp/export
+haxe/Openfl/MyHaxeUiApp/export
+mediasoup/node_modules
+mediasoup/mediasoup3/node_modules
+mediasoup/mediasoup3/example1/node_modules
+openapi/node_modules
+
+

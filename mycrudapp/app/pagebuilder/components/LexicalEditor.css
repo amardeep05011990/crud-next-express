@@ -1,0 +1,30 @@
+/* .editor-container {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+  } */
+  
+  .toolbar {
+    display: flex;
+    gap: 5px;
+    padding-bottom: 10px;
+  }
+  
+  .editor-content {
+    min-height: 150px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .editor-placeholder {
+    color: #aaa;
+  }
+  .editor-container {
+    white-space: normal !important; /* Prevents forced line breaks */
+    word-wrap: break-word; /* Ensures proper text wrapping */
+    line-height: 1.5; /* Adjusts spacing */
+    display: flex;
+    align-items: flex-start;
+  }
+  

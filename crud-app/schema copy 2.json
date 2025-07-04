@@ -1,0 +1,68 @@
+{
+  "collections": [
+    {
+      "id": "cedf9940-f808-4be9-ad24-07f64b0ed339",
+      "name": "users",
+      "fields": [
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "age",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "id": "7fcd3d67-748e-443b-9cd1-bc0758b5ecef",
+      "name": "posts",
+      "fields": [
+        {
+          "name": "title",
+          "type": "String"
+        },
+        {
+          "name": "description",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "id": "edda9108-3d0f-4143-a21c-c78918698935",
+      "name": "comments",
+      "fields": [
+        {
+          "name": "content",
+          "type": "String"
+        }
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "relationType": "one-to-many",
+      "from": "cedf9940-f808-4be9-ad24-07f64b0ed339",
+      "to": "7fcd3d67-748e-443b-9cd1-bc0758b5ecef",
+      "label": " →  (one-to-many)",
+      "fromField": "",
+      "toField": ""
+    },
+    {
+      "relationType": "one-to-many",
+      "from": "7fcd3d67-748e-443b-9cd1-bc0758b5ecef",
+      "to": "edda9108-3d0f-4143-a21c-c78918698935",
+      "label": " →  (one-to-many)",
+      "fromField": "",
+      "toField": ""
+    },
+    {
+      "relationType": "one-to-many",
+      "from": "cedf9940-f808-4be9-ad24-07f64b0ed339",
+      "to": "edda9108-3d0f-4143-a21c-c78918698935",
+      "label": " →  (one-to-many)",
+      "fromField": "",
+      "toField": ""
+    }
+  ]
+}

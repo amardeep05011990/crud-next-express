@@ -1,0 +1,107 @@
+
+minikube start
+kubectl version
+
+istioctl version
+
+kubectl get nodes
+kubectl get pods -A
+
+
+docker build -t node-microservice:v1 .
+correct --
+docker build -t amardeep05011990/node-microservice:latest .
+ docker push amardeep05011990/node-microservice:latest
+
+kubectl create ns demo
+kubectl label namespace demo istio-injection=enabled
+
+kubectl apply -n demo -f k8s-deployment.yaml
+kubectl apply -n demo -f k8s-service.yaml
+kubectl apply -n demo -f istio-gateway.yaml
+
+
+istioctl install --set profile=demo -y
+
+kubectl get crds | grep 'istio.io'
+kubectl apply -n demo -f istio-gateway.yaml
+
+kubectl label namespace demo istio-injection=enabled --overwrite
+
+kubectl get namespace demo --show-labels
+
+minikube tunnel
+
+kubectl get svc istio-ingressgateway -n istio-system
+
+If still not working, try port-forwarding:
+kubectl port-forward svc/node-microservice 3000:3000 -n demo
+curl http://localhost:3000/hello
+
+
+
+
+8. 🌐 Access via Istio Ingress
+Find the ingress IP:
+
+
+minikube tunnel
+In a new terminal:
+
+
+kubectl get svc istio-ingressgateway -n istio-system
+Use the EXTERNAL-IP and visit:
+
+http://<EXTERNAL-IP>/hello
+
+
+
+no matches for kind "Gateway" in version "networking.istio.io/v1beta1"
+ensure CRDs are installed first
+means Istio’s Custom Resource Definitions (CRDs) are not installed in your Kubernetes cluster yet. Without these CRDs, Kubernetes doesn’t recognize Istio-specific resources like Gateway and VirtualService.
+
+How to fix this?
+Step 1: Check if Istio is installed properly
+You need to install Istio in your cluster first, which includes deploying the CRDs.
+
+If you installed Istio via istioctl, run:
+
+istioctl install --set profile=demo -y
+This will:
+
+Install Istio control plane components
+
+Install the required CRDs (Gateway, VirtualService, etc.)
+
+Step 2: Verify CRDs are installed
+Run:
+
+bash
+Copy
+Edit
+kubectl get crds | grep 'istio.io'
+You should see CRDs like:
+
+gateways.networking.istio.io
+
+virtualservices.networking.istio.io
+
+destinationrules.networking.istio.io
+
+...
+
+If no CRDs appear, Istio is not installed correctly.
+
+Step 3: Retry applying your Istio configs
+After Istio is installed and CRDs present, run:
+
+bash
+Copy
+Edit
+kubectl apply -n demo -f istio-gateway.yaml
+Optional: Enable automatic sidecar injection in your demo namespace
+bash
+Copy
+Edit
+kubectl label namespace demo istio-injection=enabled --overwrite
+
