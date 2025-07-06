@@ -1,19 +1,27 @@
 import express from "express";
-// import dotenv from "dotenv";
+import dotenv from "dotenv";
+
+import { createServer } from "http";
+import { Server } from "socket.io";
+
 import multer from "multer";
 import fs from "fs";
-
+import https from 'httpolyglot'
 import cors from "cors";
 import { OpenAI } from "openai";
 
-// dotenv.config();
+dotenv.config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 //process.env.OPENAI_API_KEY || 
 const openai = new OpenAI({
-  apiKey: "REMOVED_SECRET",
+  apiKey: process.env.OPENAPI_SECRECT,
+});
+
+app.get("/", (req, res)=>{
+  res.status(200).send("health is ok")
 });
 
 app.post("/chat", async (req, res) => {
@@ -61,27 +69,6 @@ console.log(response.output_text);
 res.json(response.output_text);
 })
 
-
-// app.post("/chatStream", async (req, res)=>{
-// const { messages } = req.body;
-
-// const stream = await openai.responses.create({
-//     model: "gpt-4.1",
-//     input: [
-//         {
-//             role: "user",
-//             content: messages,
-//         },
-//     ],
-//     stream: true,
-// });
-
-// for await (const event of stream) {
-//     console.log(event);
-// }
-
-// })
-
 app.post("/chatStream", async (req, res) => {
   const { messages } = req.body;
 
@@ -102,23 +89,23 @@ app.post("/chatStream", async (req, res) => {
     const arr =[];
     for await (const chunk of stream) {
         if(chunk.type == "response.output_text.delta"){
-                  const content = chunk?.delta;
-      console.log("content===================", content)
-      arr.push(chunk)
-    if (content) {
-        res.write(content); // stream to client
-        // res.write(`data: ${content}\n\n`);
-
+          const content = chunk?.delta;
+          console.log("content===================", content)
+          arr.push(chunk)
+          if (content) {
+            io.emit("chat-stream", content); // 🔁 Broadcast to all clients
+          }
+          if (content) {
+              res.write(content); // stream to client
+          }
       }
-  //  if (content) {
-  //       res.write(`data: ${content}\n\n`); // 👈 formatted as SSE
-  //     }
-  //   res.write("data: [DONE]\n\n");
-        }
-
     }
     console.log("===>>>>>>>>>>>>",arr)
+      // io.emit("chat-stream", "  \n");
+      // io.emit("chat-stream", "\n\n---\n\n");
+      // io.emit("chat-stream", "\n\n--------------------------------------------------\n\n");
 
+      io.emit("chat-stream-done");
     res.end(); // signal stream complete
   // res.send(messages)
   } catch (err) {
@@ -154,5 +141,37 @@ app.post("/transcribe", upload.single("audio"), async (req, res) => {
   }
 });
 
+// SSL cert for HTTPS access
+// const options = {
+//   key: fs.readFileSync('./ssl/key.pem', 'utf-8'),
+//   cert: fs.readFileSync('./ssl/cert.pem', 'utf-8')
+// }
 
-app.listen(4000, () => console.log("✅ Server listening on port 4000"));
+// const httpsServer = https.createServer(options, app)
+
+
+// Replace app.listen(...)
+const server = createServer(app);
+const io = new Server(server, {
+  cors: { origin: "*" }, // Adjust as per your frontend domain
+});
+
+let sharedText = "";
+
+io.on("connection", (socket) => {
+  console.log("connection")
+  // socket.emit("textUpdate", sharedText); // Send current text to new user
+
+  socket.on("updateText", (text) => {
+    console.log("updateText",  text)
+    sharedText = text;
+    socket.broadcast.emit("textUpdate", text); // Broadcast to others
+  });
+
+});
+// Start the server
+server.listen(4000, () => console.log("✅ Server listening on port 4000"));
+
+
+// app.listen(4000, () => console.log("✅ Server listening on port 4000"));
+

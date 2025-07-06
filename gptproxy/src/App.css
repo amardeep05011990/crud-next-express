@@ -36,3 +36,14 @@
     transform: rotate(360deg);
   }
 }
+
+.responsive-textarea {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .responsive-textarea {
+    width: 50%;
+  }
+}
+

@@ -16,5 +16,8 @@ mediasoup/node_modules
 mediasoup/mediasoup3/node_modules
 mediasoup/mediasoup3/example1/node_modules
 openapi/node_modules
-
-
+.env
+ssl/
+/gptproxy/--.env
+/gptproxy/.env.development
+/gptproxy/.env.production
