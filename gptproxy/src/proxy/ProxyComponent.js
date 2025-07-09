@@ -1,109 +1,157 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
-// import axios from "axios";
 import { io } from "socket.io-client";
 import AudioToText from "./AudioToText";
-const apiurl = process.env.REACT_APP_API_URL;
+import MessageWithCanvas from "./MessageWithCanvas";
 
+const apiurl = process.env.REACT_APP_API_URL;
 const socket = io(apiurl);
 
 export default function ProxyComponent() {
-  console.log("apiurl", apiurl);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
+  const [currentAnswerIndex, setCurrentAnswerIndex] = useState(null);
+  const [isDraw, setIsDraw] = useState(true);
+  const messageRef = useRef();
+  const questionRefs = useRef([]);
 
-function audioToTextFunction(audiToTextData){
-  setInput(audiToTextData);
-  socket.emit("updateText", audiToTextData);
-  console.log("audiToTextData", audiToTextData, input)
-  
-}
+  function audioToTextFunction(data) {
+    setInput(data);
+    socket.emit("updateText", data);
+  }
 
-const sendMessage = async () => {
-  const res = await fetch(`${apiurl}/chatStream`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({messages: input})
-    // JSON.stringify({
-    //   messages: [{ role: "user", content: "What is a closure?" }],
-    // }),
-  });
-  // const data = await res.json();
+  const sendMessage = async () => {
+    const userMsg = { role: "user", content: input };
+    const assistantMsg = { role: "assistant", content: "" };
 
+    // await setMessages((prev) => {
+    //   const newMessages = [...prev, userMsg, assistantMsg];
+    //   setCurrentAnswerIndex(newMessages.length - 1); // Track assistant message index
+    //   return newMessages;
+    // });
 
-  console.log("res===", res)
-  // const reader = res.body.getReader();
-  // const decoder = new TextDecoder("utf-8");
+    socket.emit("updateText", input);
+    // socket.emit("chat-stream", messages); // make sure your backend listens to this
+    // setInput("");
 
-  // let done = false;
-  //  let botMessage = "";
-
-    // let fullText = "";
-  // let done = false;
-
-    // while (!done) {
-    //   const { value, done: doneReading } = await reader.read();
-    //   done = doneReading;
-
-    //   const chunkValue = decoder.decode(value);
-    //   fullText += chunkValue;
-
-    //   setMessages([{ role: "CorporateCubicles", content: fullText }]); // real-time render
-    // }
-};
-
- useEffect(() => {
-    let fullText = "";
-
-    socket.on("textUpdate", (text) => {
-      console.log("textUpdate",input)
-      setInput(text);
+    // Optional: trigger backend processing
+    await fetch(`${apiurl}/chatStream`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages: input }),
     });
-    socket.on("chat-stream", (chunk) => {
-      console.log("chunck data", chunk)
-      fullText += chunk;
-      setMessages([{ role: "CorporateCubicles", content: fullText }]);
-    });
-
-    socket.on("chat-stream-done", () => {
-      console.log("✅ Stream complete");
-    });
-
-    // return () => {
-    //   socket.off("chat-stream");
-    //   socket.off("chat-stream-done");
-    // };
-    // return () => socket.disconnect();
-  }, []);
-
-  const handleChange = (e) => {
-    const newText = e.target.value;
-    setInput(newText);
-    socket.emit("updateText", newText);
   };
 
+  // useEffect(() => {
+  //   let fullText = "";
+
+  //   socket.on("chat-stream", (chunk) => {
+  //     fullText += chunk;
+  //     console.log("chat-stream working=====>>>>>>>", chunk)
+
+  //     setMessages((prev) => {
+  //       if (currentAnswerIndex === null || !prev[currentAnswerIndex]) return prev;
+  //       const updated = [...prev];
+  //       updated[currentAnswerIndex] = {
+  //         ...updated[currentAnswerIndex],
+  //         content: fullText,
+  //       };
+  //       return updated;
+  //     });
+  //   });
+    
+  //   socket.on("textUpdate", (text) => setInput(text));
+
+  //   return () => {
+  //     // socket.off("chat-stream");
+  //     socket.off("textUpdate");
+  //   };
+  // }, [currentAnswerIndex]);
+
+  useEffect(() => {
+  let fullText = "";
+
+  // 👇 Listen to question/assistant placeholders
+  socket.on("new-message", (msg) => {
+    setMessages((prev) => {
+      const newMsgs = [...prev, msg];
+      if (msg.role === "assistant") {
+        setCurrentAnswerIndex(newMsgs.length - 1);
+      }
+      return newMsgs;
+    });
+  });
+
+  // 👇 Handle streamed answer chunks
+  socket.on("chat-stream", (chunk) => {
+    fullText += chunk;
+    setMessages((prev) => {
+      if (currentAnswerIndex === null || !prev[currentAnswerIndex]) return prev;
+      const updated = [...prev];
+      updated[currentAnswerIndex] = {
+        ...updated[currentAnswerIndex],
+        content: fullText,
+      };
+      return updated;
+    });
+  });
+
+  socket.on("textUpdate", (text) => {
+    console.log("textUpdate", text)
+      return setInput(text);
+  });
+
+  return () => {
+    socket.off("chat-stream");
+    socket.off("new-message");
+    // socket.off("textUpdate");
+  };
+}, [currentAnswerIndex]);
+
+  useEffect(() => {
+    const lastUserIndex = [...messages].reverse().findIndex(m => m.role === 'user');
+    const actualIndex = lastUserIndex !== -1 ? messages.length - 1 - lastUserIndex : -1;
+    if (actualIndex !== -1 && questionRefs.current[actualIndex]) {
+      questionRefs.current[actualIndex].scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [messages.length]);
+
+  const handleChange = (e) => {
+    const text = e.target.value;
+    setInput(text);
+    socket.emit("updateText", text);
+  };
+      console.log("messages---------=====>>>>>>>", messages)
+
   return (
-    <div>
-      <div style={{ maxHeight: 300, overflowY: "auto" }}>
+    <>
+      <div ref={messageRef} style={{ maxHeight: 400, overflowY: "auto", padding: "10px" }}>
         {messages.map((msg, i) => (
-          <div key={i}>
-            <strong>{msg.role}:</strong>
-            <ReactMarkdown>{msg.content}</ReactMarkdown>
-          </div>
+          <MessageWithCanvas
+            key={i}
+            msg={msg}
+            messageId={i}
+            isDraw={isDraw}
+            registerRef={(index, el) => {
+              if (msg.role === "user") questionRefs.current[index] = el;
+            }}
+          />
         ))}
       </div>
+
       <textarea
         value={input}
-        // onChange={(e) => setInput(e.target.value)}
-        placeholder="Ask me anything..."
         onChange={handleChange}
+        placeholder="Ask me anything..."
         rows={5}
-         className="responsive-textarea"
-        // style={{ width: "80%" }}
+        className="responsive-textarea"
       />
+
       <AudioToText audioToText={audioToTextFunction} />
       <button onClick={sendMessage}>Send</button>
-    </div>
+      <button onClick={() => setIsDraw((prev) => !prev)}>
+        {isDraw ? "Disable" : "Enable"} Drawing
+      </button>
+    </>
   );
 }
-

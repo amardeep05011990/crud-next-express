@@ -78,17 +78,7 @@ app.post("/chatStream", async (req, res) => {
   res.setHeader("Content-Type", "text/plain; charset=utf-8");
   res.setHeader("Transfer-Encoding", "chunked");
 
-
-
   try {
-
-        const userMsg = { role: "user", content: messages };
-  const assistantMsg = { role: "assistant", content: "" };
-
-  // 🔁 Emit user question to all clients
-  io.emit("new-message", userMsg);
-  io.emit("new-message", assistantMsg); // Placeholder for assistant response
-
     const stream = await openai.responses.create({
       model: "gpt-4.1", // or "gpt-3.5-turbo"
           input: [
@@ -181,10 +171,6 @@ io.on("connection", (socket) => {
     sharedText = text;
     socket.broadcast.emit("textUpdate", text); // Broadcast to others
   });
-
-  socket.on("textUpdate", (data)=>{
-    console.log("text updated", data);
-  })
 
 });
 
