@@ -28,13 +28,17 @@ export default function MessageWithCanvas({ msg, messageId, registerRef, isDraw 
       <div
         ref={contentRef}
         style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          padding: "10px",
-          zIndex: 1,
-          pointerEvents: "none",
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            padding: "10px",
+            zIndex: isDraw ? 1 : 10,
+            pointerEvents: "auto",     // ✅ Always allow pointer events
+            userSelect: "text",         // ✅ Always allow text selection
+            // touchAction: "manipulation", // ✅ Improves scroll on mobile
+            WebkitOverflowScrolling: "touch", // 🟢 iOS smooth scroll
+            touchAction: "pan-y",             // 🟢 Allow vertical scroll
         }}
       >
         <strong
