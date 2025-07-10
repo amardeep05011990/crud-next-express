@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Overlay</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+
+    .header {
+      height: 30px;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      -webkit-app-region: drag;
+    }
+
+    .header button {
+      margin: 0 5px;
+      padding: 2px 8px;
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      cursor: pointer;
+      -webkit-app-region: no-drag;
+    }
+
+    .overlay {
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <button onclick="sendControl('minimize')">—</button>
+    <button onclick="sendControl('maximize')">⬜</button>
+    <button onclick="sendControl('close')">✕</button>
+  </div>
+  <div class="overlay">🔴 Overlay Content Here</div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+    function sendControl(action) {
+      ipcRenderer.send('window-control', action);
+    }
+  </script>
+</body>
+</html>

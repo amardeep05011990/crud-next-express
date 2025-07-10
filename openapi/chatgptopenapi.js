@@ -186,6 +186,12 @@ io.on("connection", (socket) => {
     console.log("text updated", data);
   })
 
+  socket.on("draw-event", (data) => {
+  // Broadcast drawing data to all other clients
+  console.log("draw-event", data)
+  socket.broadcast.emit("draw-event", data);
+});
+
 });
 
 function saveAsTempWebm(audioChunks) {

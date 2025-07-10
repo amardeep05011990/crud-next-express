@@ -21,3 +21,6 @@ ssl/
 /gptproxy/--.env
 /gptproxy/.env.development
 /gptproxy/.env.production
+# my-electron-app
+my-electron-app/node_modules
+my-electron-app/dist

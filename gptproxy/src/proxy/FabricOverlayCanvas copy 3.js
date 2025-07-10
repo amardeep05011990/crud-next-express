@@ -6,7 +6,6 @@ const socket = io(process.env.REACT_APP_API_URL);
 
 export default function FabricOverlayCanvas({ messageId, height = 120, isDraw }) {
   const canvasRef = useRef();
-  const fabricCanvasRef = useRef();
 
   useEffect(() => {
     const canvas = new Canvas(canvasRef.current, {
@@ -14,22 +13,37 @@ export default function FabricOverlayCanvas({ messageId, height = 120, isDraw })
       height,
       selection: false,
     });
-    fabricCanvasRef.current = canvas;
 
+    // ✅ Set brush for drawing
     canvas.freeDrawingBrush = new PencilBrush(canvas);
     canvas.freeDrawingBrush.width = 2;
     canvas.freeDrawingBrush.color = "#ff0000";
     canvas.isDrawingMode = isDraw;
 
+    // 🔁 Receive remote drawing
     socket.on("draw-event", async (data) => {
+      console.log("draw event data ==>>> ", data)
       if (data.messageId === messageId) {
-        util.enlivenObjects([data.object]).then((objects) => {
+    util.enlivenObjects([data.object])
+          .then((objects) => {
+      console.log("draw event objects ==>>> ", objects)
+
           objects.forEach((obj) => canvas.add(obj));
-        });
+        })
       }
     });
 
+    // ✏️ Broadcast path on draw
     canvas.on("path:created", (e) => {
+      console.log("convas draw data", e.path)
+      console.log("e.path.toObject()", e.path.toObject([
+          "type",
+          "left",
+          "top",
+          "path",
+          "stroke",
+          "strokeWidth",
+        ]))
       socket.emit("draw-event", {
         messageId,
         object: e.path.toObject([
@@ -47,22 +61,7 @@ export default function FabricOverlayCanvas({ messageId, height = 120, isDraw })
       canvas.dispose();
       socket.off("draw-event");
     };
-  }, [messageId, height]);
-
-  // ✅ Update drawing mode and pointer styles
-  useEffect(() => {
-    if (fabricCanvasRef.current) {
-      fabricCanvasRef.current.isDrawingMode = isDraw;
-    }
-
-    // Update canvas DOM element styles directly
-    const canvasEl = canvasRef.current;
-    if (canvasEl) {
-    canvasEl.style.pointerEvents = isDraw ? "auto" : "none";
-    canvasEl.style.touchAction = isDraw ? "none" : "auto"; // Allow scrolling on mobile
-    canvasEl.style.userSelect = isDraw ? "none" : "auto";  // Allow text selection
-    }
-  }, [isDraw]);
+  }, [messageId, height, isDraw]);
 
   return (
     <canvas
@@ -71,13 +70,11 @@ export default function FabricOverlayCanvas({ messageId, height = 120, isDraw })
         position: "absolute",
         top: 0,
         left: 0,
+        pointerEvents: "auto",
         zIndex: 2,
+        backgroundColor: "transparent",
         width: "100%",
         height: `${height}px`,
-        backgroundColor: "transparent",
-        // pointerEvents: isDraw ? "auto" : "none",
-        // touchAction: isDraw ? "none" : "auto",
-        // userSelect: "none",
       }}
     />
   );
