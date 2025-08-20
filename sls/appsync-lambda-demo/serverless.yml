@@ -13,6 +13,8 @@ provider:
   runtime: nodejs18.x
   stage: ${opt:stage, "dev"}
   stackName: ${self:service}-${self:provider.stage}-stack
+  # environment:
+  #   BOOK_TABLE: ${self:service}-books-${sls:stage}
   # 👇 Add IAM role permissions here
   iam:
     role:
@@ -24,7 +26,9 @@ provider:
             - "dynamodb:DeleteItem"
             - "dynamodb:GetItem"
             - "dynamodb:Scan"
-          Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.TODO_TABLE}"
+          Resource:  #"arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.TODO_TABLE}"
+            - arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.TODO_TABLE}
+            - arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.bookTableName}
         # - arn:aws:dynamodb:us-west-2:590184006483:table/todo-table
 
 # LAMBDA FUNCTION CREATION
@@ -35,15 +39,22 @@ functions:
     handler: amardeephandler.xyz
   praveen:
     handler: praveenhandler.klm
-  PraveenMutation: 
+  PraveenMutation:
     handler: praveenMutationhandler.abc
     environment:
       TODO_TABLE_NAME: !Ref TodoTable
-  GetBook:
-    handler: getBookhandler.getBookNa
+  addBook:
+    handler: handler.addBook
+    environment:
+      BOOK_TABLE: !Ref BookTable # ${self:provider.environment.BOOK_TABLE}
+  getBook:
+    handler: handler.getBook
+    environment:
+      BOOK_TABLE: !Ref BookTable # ${self:provider.environment.BOOK_TABLE}
 
 custom:
   TODO_TABLE: todo-table
+  bookTableName: book-table
 
 appSync:
   name: ${self:service}-api
@@ -70,10 +81,10 @@ appSync:
         - praveenfunctionMutation
     Query.getBook:
       functions:
-        - getBookfx
-    # Mutation.addBook:
-    #   functions:
-    #     - mutateBookfx
+        - getBookpipeline
+    Mutation.addBook:
+      functions:
+        - addBookpipeline
 
   dataSources:
     helloDataSource:
@@ -104,6 +115,11 @@ appSync:
       name: getBookDataSource
       config:
         functionArn: !GetAtt GetBookLambdaFunction.Arn
+    addBookDataSource:
+      type: AWS_LAMBDA
+      name: addBookDataSource
+      config:
+        functionArn: !GetAtt AddBookLambdaFunction.Arn
 
 
   pipelineFunctions:
@@ -119,9 +135,12 @@ appSync:
     praveenfunctionMutation:
       dataSource: praveenMutationDataSource
       code: ./resolvers/praveenMutationResolver.js
-    getBookfx:
+    getBookpipeline:
       dataSource: getBookDataSource
       code: ./resolvers/getBookResolver.js
+    addBookpipeline:
+      dataSource: addBookDataSource
+      code: ./resolvers/addBookResolver.js
 
 resources:
   Resources:
@@ -136,6 +155,17 @@ resources:
             AttributeType: S
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:custom.TODO_TABLE}
+    BookTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.bookTableName}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
 
 
 # service: appsync-lambda-demo

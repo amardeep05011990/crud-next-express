@@ -10,15 +10,24 @@ type Query {
   getBook(id: ID!): Book
 }
 
+
 type Mutation {
-  praveenMutation(title: String!, author: String!): Book
+  praveenMutation(title: String!, author: String!): Todo
+  addBook(title: String!, author: String!, price: Float!, publishedYear: Int!): Book
+}
+
+type Todo {
+  id: ID!
+  title: String!
+  author: String!
 }
 
 type Book {
   id: ID!
   title: String!
   author: String!
+  price: Float!
+  publishedYear: Int!
 }
-
 
 

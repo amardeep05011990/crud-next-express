@@ -1,31 +1,48 @@
-// 'use strict';
+import AWS from "aws-sdk";
+import { v4 as uuidv4 } from "uuid";
 
-// module.exports.hello = async (event) => {
-//   return {
-//     statusCode: 200,
-//     body: JSON.stringify(
-//       {
-//         message: 'Go Serverless v1.0! Your function executed successfully!',
-//         input: event,
-//       },
-//       null,
-//       2
-//     ),
-//   };
+const dynamodb = new AWS.DynamoDB.DocumentClient();
+const TABLE_NAME = process.env.BOOK_TABLE;
 
-//   // Use this code if you don't use the http event with the LAMBDA-PROXY integration
-//   // return { message: 'Go Serverless v1.0! Your function executed successfully!', event };
-// };
-
-// export const hello = async (event) => {
-//   console.log("AppSync Event:", JSON.stringify(event, null, 2));
-
-//   const name = event.arguments?.name || "World";
-//   return `Hello, ${name}!`;
-// };
-
+// ✅ Query: hello
 export const hello = async (event) => {
   console.log("Event:", JSON.stringify(event, null, 2));
-  const name = event.arguments?.name || "World" ; // AppSync passes args here
+  const name = event.arguments?.name || "World"; 
   return `Hello ${name}`;
+};
+
+// ✅ Mutation: addBook
+export const addBook = async (event) => {
+  const { title, author, price, publishedYear } = event.arguments;
+
+  const book = {
+    id: uuidv4(),
+    title,
+    author,
+    price,
+    publishedYear,
+  };
+
+  await dynamodb
+    .put({
+      TableName: TABLE_NAME,
+      Item: book,
+    })
+    .promise();
+
+  return book;
+};
+
+// ✅ Query: getBook
+export const getBook = async (event) => {
+  const { id } = event.arguments;
+
+  const result = await dynamodb
+    .get({
+      TableName: TABLE_NAME,
+      Key: { id },
+    })
+    .promise();
+
+  return result.Item;
 };
