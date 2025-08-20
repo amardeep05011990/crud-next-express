@@ -11,16 +11,14 @@ type Query {
 }
 
 type Mutation {
-  praveenMutation(title: String!, author: String!, price: Float!, publishedYear: Int!): String
-  addBook(title: String!, author: String!, price: Float!, publishedYear: Int!): Book
+  praveenMutation(title: String!, author: String!): Book
 }
 
 type Book {
   id: ID!
   title: String!
   author: String!
-  price: Float!
-  publishedYear: Int!
 }
+
 
 

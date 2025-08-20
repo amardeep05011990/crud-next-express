@@ -1,7 +1,7 @@
 {
   "name": "appsync-lambda-demo",
   "version": "1.0.0",
-   "type": "module",
+  "type": "module",
   "main": "handler.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -11,6 +11,8 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "serverless-appsync-plugin": "^2.9.1"
+    "aws-sdk": "^2.1692.0",
+    "serverless-appsync-plugin": "^2.9.1",
+    "uuid": "^11.1.0"
   }
 }

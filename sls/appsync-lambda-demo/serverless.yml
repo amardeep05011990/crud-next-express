@@ -4,14 +4,29 @@ frameworkVersion: '3'
 
 plugins:
   - serverless-appsync-plugin
+  # - serverless-pseudo-parameters
   # - serverless-iam-roles-per-function
 
 provider:
   name: aws
-  region: us-east-2
+  region: us-west-2
   runtime: nodejs18.x
   stage: ${opt:stage, "dev"}
   stackName: ${self:service}-${self:provider.stage}-stack
+  # 👇 Add IAM role permissions here
+  iam:
+    role:
+      statements:
+        - Effect: "Allow"
+          Action:
+            - "dynamodb:PutItem"
+            - "dynamodb:UpdateItem"
+            - "dynamodb:DeleteItem"
+            - "dynamodb:GetItem"
+            - "dynamodb:Scan"
+          Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.TODO_TABLE}"
+        # - arn:aws:dynamodb:us-west-2:590184006483:table/todo-table
+
 # LAMBDA FUNCTION CREATION
 functions:
   helloLambda:
@@ -22,10 +37,13 @@ functions:
     handler: praveenhandler.klm
   PraveenMutation: 
     handler: praveenMutationhandler.abc
+    environment:
+      TODO_TABLE_NAME: !Ref TodoTable
   GetBook:
     handler: getBookhandler.getBookNa
 
-
+custom:
+  TODO_TABLE: todo-table
 
 appSync:
   name: ${self:service}-api
@@ -53,9 +71,9 @@ appSync:
     Query.getBook:
       functions:
         - getBookfx
-    Mutation.addBook:
-      functions:
-        - mutateBookfx
+    # Mutation.addBook:
+    #   functions:
+    #     - mutateBookfx
 
   dataSources:
     helloDataSource:
@@ -88,8 +106,6 @@ appSync:
         functionArn: !GetAtt GetBookLambdaFunction.Arn
 
 
-
-
   pipelineFunctions:
     helloPipeline:
       dataSource: helloDataSource
@@ -106,8 +122,20 @@ appSync:
     getBookfx:
       dataSource: getBookDataSource
       code: ./resolvers/getBookResolver.js
-    
 
+resources:
+  Resources:
+    TodoTable:
+      Type: "AWS::DynamoDB::Table"
+      Properties:
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:custom.TODO_TABLE}
 
 
 # service: appsync-lambda-demo
