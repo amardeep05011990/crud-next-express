@@ -1,0 +1,38 @@
+<vbox style="padding:10px;">
+
+    <section-header text="Custom Handling" />
+
+    <frame text="Login Form">
+        <vbox>
+            <form id="form4">
+                <label text="Username" style="margin-top: 6px;" />
+                <vbox>
+                    <textfield id="username4" validator="required" />
+                    <label id="username4error" hidden="true" horizontalAlign="right" style="color: $error-border-color;font-size: 11px;" />
+                </vbox>
+        
+                <label text="Password" style="margin-top: 6px;" />
+                <vbox>
+                    <textfield id="password4" validator="required" />
+                    <label id="password4error" hidden="true" horizontalAlign="right" style="color: $error-border-color;font-size: 11px;" />
+                </vbox>
+        
+                <label text="System" style="margin-top: 6px;" />
+                <vbox width="100%">
+                    <dropdown text="Select System" id="system4" width="100%" validator="required">
+                        <validator type="pattern" pattern="System A|System C" invalidMessage="System A or System C" applyValid="false" />
+                        <data>
+                            <item text="System A" />
+                            <item text="System B" />
+                            <item text="System C" />
+                        </data>
+                    </dropdown>
+                    <label id="system4error" hidden="true" horizontalAlign="right" style="color: $error-border-color;font-size: 11px;" />
+                </vbox>
+            </form>
+            <hbox horizontalAlign="right">
+                <button text="Login" onclick="form4.submit()" />
+            </hbox>
+        </vbox>
+    </frame>
+</vbox>

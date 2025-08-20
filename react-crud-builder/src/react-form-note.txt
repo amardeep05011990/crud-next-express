@@ -1,0 +1,171 @@
+import React, { useState } from 'react';
+
+const MyForm = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    age: '',
+    agree: false,
+  });
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log(formData);
+    // Submit to API or process further
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <label>
+        Name:
+        <input name="name" value={formData.name} onChange={handleChange} />
+      </label>
+      <br />
+      <label>
+        Email:
+        <input name="email" value={formData.email} onChange={handleChange} />
+      </label>
+      <br />
+      <label>
+        Age:
+        <input name="age" value={formData.age} onChange={handleChange} type="number" />
+      </label>
+      <br />
+      <label>
+        Agree to Terms:
+        <input
+          name="agree"
+          type="checkbox"
+          checked={formData.agree}
+          onChange={handleChange}
+        />
+      </label>
+      <br />
+      <button type="submit">Submit</button>
+    </form>
+  );
+};
+
+export default MyForm;
+
+
+
+import React, { useState } from 'react';
+
+const UniversalForm = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    age: '',
+    email: '',
+    gender: '',
+    bio: '',
+    agree: false,
+    favoriteColor: '',
+    skills: [],
+    profilePicture: null,
+  });
+
+  const handleChange = (e) => {
+    const { name, value, type, checked, files, multiple } = e.target;
+
+    if (type === 'checkbox') {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: checked,
+      }));
+    } else if (type === 'file') {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: multiple ? Array.from(files) : files[0],
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+  };
+
+  const handleMultiSelect = (e) => {
+    const options = Array.from(e.target.selectedOptions).map((opt) => opt.value);
+    setFormData((prev) => ({
+      ...prev,
+      skills: options,
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log('Submitted Form Data:', formData);
+    // Upload or send to backend here
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <h2>Universal Form</h2>
+
+      <label>Name:
+        <input type="text" name="name" value={formData.name} onChange={handleChange} />
+      </label><br />
+
+      <label>Age:
+        <input type="number" name="age" value={formData.age} onChange={handleChange} />
+      </label><br />
+
+      <label>Email:
+        <input type="email" name="email" value={formData.email} onChange={handleChange} />
+      </label><br />
+
+      <label>Gender:<br />
+        <label>
+          <input type="radio" name="gender" value="male" checked={formData.gender === 'male'} onChange={handleChange} /> Male
+        </label>
+        <label>
+          <input type="radio" name="gender" value="female" checked={formData.gender === 'female'} onChange={handleChange} /> Female
+        </label>
+      </label><br />
+
+      <label>Bio:
+        <textarea name="bio" value={formData.bio} onChange={handleChange}></textarea>
+      </label><br />
+
+      <label>Agree to Terms:
+        <input type="checkbox" name="agree" checked={formData.agree} onChange={handleChange} />
+      </label><br />
+
+      <label>Favorite Color:
+        <select name="favoriteColor" value={formData.favoriteColor} onChange={handleChange}>
+          <option value="">Select</option>
+          <option value="red">Red</option>
+          <option value="blue">Blue</option>
+          <option value="green">Green</option>
+        </select>
+      </label><br />
+
+      <label>Skills:
+        <select multiple name="skills" value={formData.skills} onChange={handleMultiSelect}>
+          <option value="react">React</option>
+          <option value="node">Node.js</option>
+          <option value="mongodb">MongoDB</option>
+          <option value="docker">Docker</option>
+        </select>
+      </label><br />
+
+      <label>Profile Picture:
+        <input type="file" name="profilePicture" onChange={handleChange} />
+      </label><br />
+
+      <button type="submit">Submit</button>
+    </form>
+  );
+};
+
+export default UniversalForm;

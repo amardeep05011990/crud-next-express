@@ -1,0 +1,17 @@
+$sidebar-width: 260px;
+
+/* desktop content offset */
+@media (min-width: 992px) {
+  .main { margin-left: $sidebar-width; }
+}
+/* mobile full width */
+@media (max-width: 991.98px) {
+  .main { margin-left: 0; }
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.35);
+  z-index: 1035;
+}

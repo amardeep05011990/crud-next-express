@@ -1,0 +1,18 @@
+{
+  "name": "my-electron-app",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npx electron .",
+     "build": "electron-packager . overlay-app --platform=win32 --arch=x64 --out=dist --overwrite"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "electron": "^37.2.0",
+    "electron-packager": "^17.1.2"
+  }
+}

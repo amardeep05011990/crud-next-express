@@ -1,0 +1,14 @@
+<aside class="sidebar" [class.show]="(sidebarOpen$ | async)">
+  <div class="sidebar-content">
+    <ul class="nav nav-pills flex-column mb-auto">
+      <li class="nav-item" *ngFor="let link of links">
+        <a class="nav-link d-flex align-items-center gap-2"
+           [routerLink]="link.url"
+           routerLinkActive="active"
+           (click)="closeOnClick()">
+          <i class="{{ link.icon }}"></i><span class="text-truncate">{{ link.label }}</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</aside>

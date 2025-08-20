@@ -1,0 +1,46 @@
+<form [formGroup]="regForm" (ngSubmit)="onsave()">
+
+  <label for="name">Name</label>
+  <input type="text" name="name" id="name" formControlName="name">
+  <div *ngIf="regForm.get('name')?.touched && regForm.get('name')?.invalid">
+    <small *ngIf="regForm.get('name')?.errors?.['required']">
+      Name should required
+    </small>
+
+  </div>
+  <label></label>
+  <br>
+  <label for="age">Age</label>
+  <input type="text" name="age" id="age" formControlName="age">
+   <br>
+  <label for="email">Email</label>
+  <input type="text" name="email" id="email" formControlName="email">
+  <br>
+  <div formArrayName="skills" >
+      <label>add skills</label>
+    <button type="button" (click)="addskills()">+ add skills</button>
+    <br>
+    <div *ngFor="let skill of skills.controls; let i =index">
+      {{i}} {{skills.controls}}
+    <input type="text" [formControlName]="i">
+    <button type="button" (click)="removeSkills(i)">remove skills</button>
+    </div>
+</div>
+
+<div formArrayName="address">
+  <button (click)="addAddress()">add address</button>
+  <div *ngFor="let add of address.controls; let i = index">
+      <div [formGroupName]="i">
+        <input type="text" formControlName="city">
+        <input  type="text" formControlName="pincode">
+    </div>
+    <button (click)="removeaddress(i)">remove address</button>
+    </div>
+
+</div>
+
+<br>
+  <input type="submit" value="submit" [disabled]="isdisable">
+<br>
+
+</form>

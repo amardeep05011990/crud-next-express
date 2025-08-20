@@ -1,0 +1,23 @@
+{
+  "name": "openapi",
+  "version": "1.0.0",
+  "main": "chatgptopenapi.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dot-env": "^0.0.1",
+    "dotenv": "^17.0.1",
+    "express": "^5.1.0",
+    "httpolyglot": "^0.1.2",
+    "multer": "^2.0.1",
+    "openai": "^5.8.2",
+    "socket.io": "^4.8.1",
+    "uuid": "^11.1.0"
+  }
+}

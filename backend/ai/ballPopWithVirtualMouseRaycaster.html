@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Mouse with Hand Tracking</title>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils"></script>
+
+    <style>
+        body { margin: 0; overflow: hidden; }
+        video { position: fixed; top: 10px; left: 10px; width: 320px; height: auto; opacity: 0.5; }
+        .cursor { 
+            position: absolute; width: 20px; height: 20px; background: red;
+            border-radius: 50%; pointer-events: none; transition: transform 0.05s linear;
+        }
+    </style>
+</head>
+<body>
+    <video id="video" autoplay playsinline></video>
+    <div class="cursor" id="cursor"></div>
+
+    <a-scene>
+        <a-sky color="lightblue"></a-sky>
+        <a-plane position="0 0 -5" rotation="-90 0 0" width="10" height="10" color="green"></a-plane>
+        <a-text id="scoreText" value="Score: 0" position="-2 3 -4" color="black" width="3"></a-text>
+
+        <!-- Virtual Mouse Raycaster -->
+        <a-camera position="0 1.6 0">
+            <a-entity id="raycaster" raycaster="objects: .balloon; showLine: true; lineColor: red;" ></a-entity>
+            <!-- <a-entity  cursor="rayOrigin: mouse"> -->
+
+        </a-camera>
+    </a-scene>
+
+    <script>
+        const videoElement = document.getElementById("video");
+        const cursorElement = document.getElementById("cursor");
+        const raycaster = document.querySelector("#raycaster");
+
+        let score = 0;
+        let speed = 2000;
+
+        // Initialize MediaPipe Hands
+        const hands = new Hands({
+            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+        });
+
+        hands.setOptions({
+            maxNumHands: 1,
+            modelComplexity: 1,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5
+        });
+
+        hands.onResults((results) => {
+            if (results.multiHandLandmarks.length > 0) {
+                console.log("results.multiHandLandmarks", results.multiHandLandmarks)
+                const landmarks = results.multiHandLandmarks[0];
+                const indexFinger = landmarks[8]; // Tip of the index finger
+
+                // Convert to screen coordinates
+                const x = window.innerWidth * indexFinger.x;
+                const y = window.innerHeight * indexFinger.y;
+
+                // Move the cursor
+                cursorElement.style.transform = `translate(${x}px, ${y}px)`;
+
+                // Convert screen (2D) position to 3D world position
+                const worldPos = screenToWorld(x, y);
+
+                // Move A-Frame raycaster to match cursor position
+                raycaster.setAttribute("position", `${worldPos.x} ${worldPos.y} ${worldPos.z}`);
+
+                        // 🔥 Call detectPinch to check for clicks
+        detectPinch(landmarks);
+            }
+        });
+
+        // Convert screen position to A-Frame world position
+        function screenToWorld(x, y) {
+    const camEl = document.querySelector("a-camera");
+
+    if (!camEl || !camEl.object3D) {
+        console.warn("A-Frame camera not found or not ready.");
+        return { x: 0, y: 0, z: -5 }; // Default position
+    }
+
+    // Find the actual THREE.js PerspectiveCamera inside the camera object3D
+    let cam = camEl.object3D.children.find(child => child.isPerspectiveCamera);
+
+    if (!cam) {
+        console.error("PerspectiveCamera not found inside A-Frame camera object3D.");
+        return { x: 0, y: 0, z: -5 };
+    }
+
+    // Ensure valid x, y values
+    if (typeof x !== "number" || typeof y !== "number" || isNaN(x) || isNaN(y)) {
+        console.warn("Invalid cursor position detected.");
+        return { x: 0, y: 0, z: -5 };
+    }
+
+    const vector = new THREE.Vector3(
+        (x / window.innerWidth) * 2 - 1, 
+        -(y / window.innerHeight) * 2 + 1, 
+        -1
+    );
+
+    try {
+        vector.unproject(cam);  // Perform unproject using the correct PerspectiveCamera
+        return vector;
+    } catch (error) {
+        console.error("Error in screenToWorld:", error);
+        return { x: 0, y: 0, z: -5 }; // Prevent crashing
+    }
+}
+
+
+        // Simulate mouse click event (in 3D)
+        function simulateClick() {
+            raycaster.components.raycaster.checkIntersections();
+            const intersections = raycaster.components.raycaster.intersections;
+
+            if (intersections.length > 0) {
+                const clickedElement = intersections[0].object.el;
+
+                if (clickedElement) {
+                    clickedElement.emit("click");
+                    console.log("Clicked balloon:", clickedElement);
+                }
+            }
+        }
+
+        // Detect pinch to trigger clicks
+        function detectPinch(landmarks) {
+            const indexFinger = landmarks[8]; // Tip of index finger
+            const thumb = landmarks[4]; // Tip of thumb
+            const pinchDistance = Math.hypot(indexFinger.x - thumb.x, indexFinger.y - thumb.y);
+
+            if (pinchDistance < 0.05) {
+                simulateClick(); // Trigger click in 3D world
+            }
+        }
+
+        // Setup camera
+        const camera = new Camera(videoElement, {
+            onFrame: async () => await hands.send({ image: videoElement }),
+            width: 640,
+            height: 480
+        });
+        camera.start();
+
+//         function spawnBalloon() {
+//     const scene = document.querySelector('a-scene');
+//     const balloon = document.createElement('a-sphere');
+
+//     // Set random X position and start from Y=4 (top)
+//     const xPos = (Math.random() * 4) - 2;
+//     balloon.setAttribute('position', `${xPos} 4 -3`);
+//     balloon.setAttribute('radius', '0.4');
+//     balloon.setAttribute('class', 'balloon');
+
+//     // Add Falling Component
+//     balloon.setAttribute("falling-balloon", "");
+
+//     scene.appendChild(balloon);
+// }
+
+function spawnBalloon() {
+    const scene = document.querySelector('a-scene');
+    const balloon = document.createElement('a-sphere');
+
+    // Set random X position and start from Y=4 (top)
+    const xPos = (Math.random() * 4) - 2;
+    balloon.setAttribute('position', `${xPos} 4 -3`);
+    balloon.setAttribute('radius', '0.4');
+    balloon.setAttribute('class', 'balloon');
+
+    // ✅ Add click listener so it disappears when clicked
+    balloon.setAttribute("click-listener", "");
+
+    // ✅ Add falling-balloon component so it moves down
+    balloon.setAttribute("falling-balloon", "");
+
+    scene.appendChild(balloon);
+}
+
+// // Falling component for continuous movement
+AFRAME.registerComponent('falling-balloon', {
+    schema: { speed: { type: 'number', default: 0.02 } },
+
+    tick: function () {
+        let pos = this.el.object3D.position;
+        if (pos.y > 0) {
+            this.el.object3D.position.y -= this.data.speed; // Moves balloon down
+        } else {
+            this.el.parentNode.removeChild(this.el); // Remove balloon when it hits the ground
+        }
+        
+    }
+});
+
+AFRAME.registerComponent('click-listener', {
+    init: function () {
+        this.el.addEventListener("click", () => {
+            console.log("Balloon popped!", this.el);
+
+            // ✅ Remove the clicked balloon
+            if (this.el.parentNode) {
+                this.el.parentNode.removeChild(this.el);
+            }
+
+            // ✅ Increase score
+            score += 10;
+            updateScore();
+        });
+    }
+});
+
+
+        function updateScore() {
+            document.getElementById('scoreText').setAttribute('value', 'Score: ' + score);
+        }
+
+        // Spawn balloons at intervals
+        setInterval(spawnBalloon, 500);
+    </script>
+</body>
+</html>

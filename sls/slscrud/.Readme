@@ -1,0 +1,7 @@
+### https://s6mha96d0f.execute-api.us-west-2.amazonaws.com/users
+
+### https://jtx96u8vpk.execute-api.us-east-1.amazonaws.com/users 
+
+endpoints:                                                                                                                                                                                      
+  GET - https://jtx96u8vpk.execute-api.us-east-1.amazonaws.com/users
+  GET - https://jtx96u8vpk.execute-api.us-east-1.amazonaws.com/users/healthy

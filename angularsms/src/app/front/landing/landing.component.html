@@ -1,0 +1,140 @@
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+  <div class="container">
+    <a class="navbar-brand fw-bold text-primary">🌟 MySchool</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+        <li class="nav-item"><a class="nav-link" href="#courses">Courses</a></li>
+        <li class="nav-item"><a class="nav-link" href="#testimonials">Testimonials</a></li>
+        <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<header class="bg-light py-5 text-center">
+  <div class="container">
+    <h1 class="display-4 fw-bold">Welcome to MySchool</h1>
+    <p class="lead text-muted">A place where learning meets creativity & excellence.</p>
+    <a href="#contact" class="btn btn-primary btn-lg mt-3">Enroll Now</a>
+  </div>
+</header>
+
+<!-- About -->
+<section id="about" class="py-5">
+  <div class="container text-center">
+    <h2 class="fw-bold mb-4">About Us</h2>
+    <p class="text-muted">
+      MySchool is dedicated to providing world-class education with modern teaching methods,
+      experienced faculty, and innovative learning environments.
+    </p>
+  </div>
+</section>
+
+<!-- Courses -->
+<section id="courses" class="py-5 bg-light">
+  <div class="container">
+    <h2 class="fw-bold text-center mb-5">Our Courses</h2>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+          <img src="https://picsum.photos/400/200?1" class="card-img-top" alt="Science">
+          <div class="card-body text-center">
+            <h5 class="card-title">Science</h5>
+            <p class="card-text">Explore physics, chemistry, and biology with hands-on labs.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+          <img src="https://picsum.photos/400/200?2" class="card-img-top" alt="Arts">
+          <div class="card-body text-center">
+            <h5 class="card-title">Arts</h5>
+            <p class="card-text">Creative courses in painting, drama, and music.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+          <img src="https://picsum.photos/400/200?3" class="card-img-top" alt="Sports">
+          <div class="card-body text-center">
+            <h5 class="card-title">Sports</h5>
+            <p class="card-text">Professional coaching in football, cricket, and athletics.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials -->
+<section id="testimonials" class="py-5">
+  <div class="container text-center">
+    <h2 class="fw-bold mb-5">What Parents Say</h2>
+    <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel">
+      <div class="carousel-inner">
+        <div class="carousel-item active">
+          <blockquote class="blockquote">
+            <p>"My child loves this school! Teachers are so supportive."</p>
+            <footer class="blockquote-footer">Mrs. Sharma</footer>
+          </blockquote>
+        </div>
+        <div class="carousel-item">
+          <blockquote class="blockquote">
+            <p>"Excellent balance of academics and extracurriculars."</p>
+            <footer class="blockquote-footer">Mr. Singh</footer>
+          </blockquote>
+        </div>
+        <div class="carousel-item">
+          <blockquote class="blockquote">
+            <p>"Best decision we made for our kids’ future."</p>
+            <footer class="blockquote-footer">Mrs. Patel</footer>
+          </blockquote>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact -->
+<section id="contact" class="py-5 bg-light">
+  <div class="container">
+    <h2 class="fw-bold text-center mb-4">Contact Us</h2>
+    <div class="row">
+      <div class="col-md-6">
+        <form>
+          <div class="mb-3">
+            <input type="text" class="form-control" placeholder="Your Name">
+          </div>
+          <div class="mb-3">
+            <input type="email" class="form-control" placeholder="Your Email">
+          </div>
+          <div class="mb-3">
+            <textarea class="form-control" rows="4" placeholder="Message"></textarea>
+          </div>
+          <button class="btn btn-primary">Send Message</button>
+        </form>
+      </div>
+      <div class="col-md-6">
+        <iframe class="w-100 h-100 rounded shadow-sm"
+                src="https://maps.google.com/maps?q=Delhi&t=&z=13&ie=UTF8&iwloc=&output=embed"
+                height="250" style="border:0;"></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-dark text-white text-center py-3">
+  <p class="mb-0">&copy; {{ currentYear }} MySchool. All rights reserved.</p>
+  <div class="mt-2">
+    <a href="#" class="text-white me-3"><i class="bi bi-facebook"></i></a>
+    <a href="#" class="text-white me-3"><i class="bi bi-twitter"></i></a>
+    <a href="#" class="text-white"><i class="bi bi-instagram"></i></a>
+  </div>
+</footer>

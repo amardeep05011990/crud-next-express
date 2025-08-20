@@ -1,0 +1,26 @@
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+type Query {
+  hello(name: String): String
+  amardeepfn(city: String): String
+  praveenfx(address: String): String
+  getBook(id: ID!): Book
+}
+
+type Mutation {
+  praveenMutation(title: String!, author: String!, price: Float!, publishedYear: Int!): String
+  addBook(title: String!, author: String!, price: Float!, publishedYear: Int!): Book
+}
+
+type Book {
+  id: ID!
+  title: String!
+  author: String!
+  price: Float!
+  publishedYear: Int!
+}
+
+

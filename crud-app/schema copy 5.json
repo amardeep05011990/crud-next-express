@@ -1,0 +1,48 @@
+{
+  "collections": [
+    {
+      "id": "f341629a-115e-4ec1-99a3-61b0aa7eb499",
+      "name": "userforms",
+      "fields": [
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "email",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "id": "f52527c3-9404-48bd-b2a7-2401bc2da570",
+      "name": "userposts",
+      "fields": [
+        {
+          "name": "tite",
+          "type": "String",
+          "validation": {
+            "required": {
+              "value": true,
+              "message": ""
+            }
+          }
+        },
+        {
+          "name": "description",
+          "type": "String"
+        }
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "relationType": "one-to-many",
+      "from": "f341629a-115e-4ec1-99a3-61b0aa7eb499",
+      "to": "f52527c3-9404-48bd-b2a7-2401bc2da570",
+      "label": " →  (one-to-many)",
+      "fromField": "",
+      "toField": ""
+    }
+  ]
+}

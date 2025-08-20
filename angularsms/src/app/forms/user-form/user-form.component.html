@@ -1,0 +1,212 @@
+<div class="container">
+  <h2>{{ isEdit ? 'Edit User' : 'Add User' }}</h2>
+
+  <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+    <!-- Name -->
+    <div>
+      <label>Name:</label>
+      <input formControlName="name" />
+      <div *ngIf="userForm.get('name')?.touched && userForm.get('name')?.invalid" style="color:red;">
+        Name is required (min 3 characters)
+      </div>
+    </div>
+
+    <hr />
+
+    <!-- Skills -->
+    <h3>Skills</h3>
+    <div formArrayName="skills">
+      <div *ngFor="let skill of skills.controls; let i = index">
+        <input [formControlName]="i" placeholder="Enter skill" />
+        <button type="button" (click)="removeSkill(i)">Remove</button>
+        <div *ngIf="skill.touched && skill.invalid" style="color:red;">
+          Skill is required (min 2 characters)
+        </div>
+      </div>
+    </div>
+    <button type="button" (click)="addSkill()">+ Add Skill</button>
+
+    <hr />
+
+    <!-- Addresses -->
+    <h3>Addresses</h3>
+    <div formArrayName="addresses">
+      <div *ngFor="let address of addresses.controls; let i = index" [formGroupName]="i">
+        <input formControlName="street" placeholder="Street" />
+        <input formControlName="city" placeholder="City" />
+        <input formControlName="pincode" placeholder="Pincode" />
+        <button type="button" (click)="removeAddress(i)">Remove</button>
+
+        <div *ngIf="address.touched && address.invalid" style="color:red;">
+          Address fields are required. Pincode must be 6 digits.
+        </div>
+      </div>
+    </div>
+    <button type="button" (click)="addAddress()">+ Add Address</button>
+
+    <hr />
+
+    <button type="submit">{{ isEdit ? 'Update' : 'Save' }}</button>
+  </form>
+</div>
+
+
+<div class="container">
+  <h2>{{ isEdit ? 'Edit User' : 'Add User' }}</h2>
+
+  <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+    <!-- Name -->
+    <div>
+      <label>Name:</label>
+      <input formControlName="name" />
+      <div *ngIf="userForm.get('name')?.touched && userForm.get('name')?.invalid" style="color:red;">
+        Name is required (min 3 characters)
+      </div>
+    </div>
+
+    <hr />
+
+    <!-- Skills -->
+    <h3>Skills</h3>
+    <div formArrayName="skills">
+      <div *ngFor="let skill of skills.controls; let i = index">
+        <input [formControlName]="i" placeholder="Enter skill" />
+        <button type="button" (click)="removeSkill(i)">Remove</button>
+        <div *ngIf="skill.touched && skill.invalid" style="color:red;">
+          Skill is required (min 2 characters)
+        </div>
+      </div>
+    </div>
+    <button type="button" (click)="addSkill()">+ Add Skill</button>
+
+    <hr />
+
+    <!-- Addresses -->
+    <h3>Addresses</h3>
+    <div formArrayName="addresses">
+      <div *ngFor="let address of addresses.controls; let i = index" [formGroupName]="i">
+        <input formControlName="street" placeholder="Street" />
+        <input formControlName="city" placeholder="City" />
+        <input formControlName="pincode" placeholder="Pincode" />
+        <button type="button" (click)="removeAddress(i)">Remove</button>
+
+        <div *ngIf="address.touched && address.invalid" style="color:red;">
+          Address fields are required. Pincode must be 6 digits.
+        </div>
+      </div>
+    </div>
+    <button type="button" (click)="addAddress()">+ Add Address</button>
+
+    <hr />
+
+    <button type="submit">{{ isEdit ? 'Update' : 'Save' }}</button>
+  </form>
+</div>
+
+
+<div class="container">
+  <h2>{{ isEdit ? 'Edit User' : 'Add User' }}</h2>
+
+  <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+    <!-- Name -->
+    <div>
+      <label>Name:</label>
+      <input formControlName="name" />
+      <div *ngIf="userForm.get('name')?.touched && userForm.get('name')?.invalid" style="color:red;">
+        Name is required (min 3 characters)
+      </div>
+    </div>
+
+    <hr />
+
+    <!-- Skills -->
+    <h3>Skills</h3>
+    <div formArrayName="skills">
+      <div *ngFor="let skill of skills.controls; let i = index">
+        <input [formControlName]="i" placeholder="Enter skill" />
+        <button type="button" (click)="removeSkill(i)">Remove</button>
+        <div *ngIf="skill.touched && skill.invalid" style="color:red;">
+          Skill is required (min 2 characters)
+        </div>
+      </div>
+    </div>
+    <button type="button" (click)="addSkill()">+ Add Skill</button>
+
+    <hr />
+
+    <!-- Addresses -->
+    <h3>Addresses</h3>
+    <div formArrayName="addresses">
+      <div *ngFor="let address of addresses.controls; let i = index" [formGroupName]="i">
+        <input formControlName="street" placeholder="Street" />
+        <input formControlName="city" placeholder="City" />
+        <input formControlName="pincode" placeholder="Pincode" />
+        <button type="button" (click)="removeAddress(i)">Remove</button>
+
+        <div *ngIf="address.touched && address.invalid" style="color:red;">
+          Address fields are required. Pincode must be 6 digits.
+        </div>
+      </div>
+    </div>
+    <button type="button" (click)="addAddress()">+ Add Address</button>
+
+    <hr />
+
+    <button type="submit">{{ isEdit ? 'Update' : 'Save' }}</button>
+  </form>
+</div>
+
+
+
+<div class="container">
+  <h2>{{ isEdit ? 'Edit User' : 'Add User' }}</h2>
+
+  <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+    <!-- Name -->
+    <div>
+      <label>Name:</label>
+      <input formControlName="name" />
+      <div *ngIf="userForm.get('name')?.touched && userForm.get('name')?.invalid" style="color:red;">
+        Name is required (min 3 characters)
+      </div>
+    </div>
+
+    <hr />
+
+    <!-- Skills -->
+    <h3>Skills</h3>
+    <div formArrayName="skills">
+      <div *ngFor="let skill of skills.controls; let i = index">
+        <input [formControlName]="i" placeholder="Enter skill" />
+        <button type="button" (click)="removeSkill(i)">Remove</button>
+        <div *ngIf="skill.touched && skill.invalid" style="color:red;">
+          Skill is required (min 2 characters)
+        </div>
+      </div>
+    </div>
+    <button type="button" (click)="addSkill()">+ Add Skill</button>
+
+    <hr />
+
+    <!-- Addresses -->
+    <h3>Addresses</h3>
+    <div formArrayName="addresses">
+      <div *ngFor="let address of addresses.controls; let i = index" [formGroupName]="i">
+        <input formControlName="street" placeholder="Street" />
+        <input formControlName="city" placeholder="City" />
+        <input formControlName="pincode" placeholder="Pincode" />
+        <button type="button" (click)="removeAddress(i)">Remove</button>
+
+        <div *ngIf="address.touched && address.invalid" style="color:red;">
+          Address fields are required. Pincode must be 6 digits.
+        </div>
+      </div>
+    </div>
+    <button type="button" (click)="addAddress()">+ Add Address</button>
+
+    <hr />
+
+    <button type="submit">{{ isEdit ? 'Update' : 'Save' }}</button>
+  </form>
+</div>
+
