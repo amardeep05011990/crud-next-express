@@ -11,8 +11,13 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "aws-sdk": "^2.1692.0",
+    "@aws-sdk/client-dynamodb": "^3.868.0",
     "serverless-appsync-plugin": "^2.9.1",
     "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "serverless-appsync-simulator": "^0.20.0",
+    "serverless-dynamodb-local": "^0.2.40",
+    "serverless-offline": "^14.4.0"
   }
 }

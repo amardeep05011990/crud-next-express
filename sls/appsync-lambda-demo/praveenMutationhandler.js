@@ -1,10 +1,12 @@
-import AWS from "aws-sdk";
-import { v4 as uuidv4 } from "uuid";   // to generate unique IDs
+import { v4 as uuidv4 } from "uuid";   
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
 
-const dynamodb = new AWS.DynamoDB();
+const client = new DynamoDBClient({ region: process.env.AWS_REGION || "us-west-2" });
+const dynamodb = DynamoDBDocumentClient.from(client);
 
 export const abc = async (event) => {
-  console.log("paraveen mutation data :", JSON.stringify(event, null, 2));
+  console.log("Praveen mutation data:", JSON.stringify(event, null, 2));
 
   // Get GraphQL mutation arguments
   const { title, author } = event.arguments;
@@ -13,17 +15,16 @@ export const abc = async (event) => {
   const id = uuidv4();
 
   const params = {
-    Item: {
-      "id": { S: id },
-      "title": { S: title },
-      "author": { S: author }
-    },
     TableName: process.env.TODO_TABLE_NAME,
-    ReturnConsumedCapacity: "TOTAL"
+    Item: {
+      id,       // no need for { S: id }
+      title,
+      author
+    }
   };
 
   try {
-    await dynamodb.putItem(params).promise();
+    await dynamodb.send(new PutCommand(params));
 
     // Return back the stored item
     return {

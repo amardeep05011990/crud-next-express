@@ -1,13 +1,16 @@
-import AWS from "aws-sdk";
 import { v4 as uuidv4 } from "uuid";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDocumentClient, GetCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
 
-const dynamodb = new AWS.DynamoDB.DocumentClient();
+const client = new DynamoDBClient({ region: process.env.AWS_REGION || "us-west-2" });
+const dynamodb = DynamoDBDocumentClient.from(client);
+
 const TABLE_NAME = process.env.BOOK_TABLE;
 
 // ✅ Query: hello
 export const hello = async (event) => {
   console.log("Event:", JSON.stringify(event, null, 2));
-  const name = event.arguments?.name || "World"; 
+  const name = event.arguments?.name || "World";
   return `Hello ${name}`;
 };
 
@@ -23,12 +26,12 @@ export const addBook = async (event) => {
     publishedYear,
   };
 
-  await dynamodb
-    .put({
+  await dynamodb.send(
+    new PutCommand({
       TableName: TABLE_NAME,
       Item: book,
     })
-    .promise();
+  );
 
   return book;
 };
@@ -37,12 +40,12 @@ export const addBook = async (event) => {
 export const getBook = async (event) => {
   const { id } = event.arguments;
 
-  const result = await dynamodb
-    .get({
+  const result = await dynamodb.send(
+    new GetCommand({
       TableName: TABLE_NAME,
       Key: { id },
     })
-    .promise();
+  );
 
   return result.Item;
 };

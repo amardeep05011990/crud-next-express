@@ -4,6 +4,12 @@ frameworkVersion: '3'
 
 plugins:
   - serverless-appsync-plugin
+  - serverless-appsync-simulator
+  - serverless-offline
+
+  # - serverless-offline
+  # - serverless-appsync-offline
+  # - serverless-dynamodb-local # Optional, if using DynamoDB Local
   # - serverless-pseudo-parameters
   # - serverless-iam-roles-per-function
 
@@ -55,6 +61,13 @@ functions:
 custom:
   TODO_TABLE: todo-table
   bookTableName: book-table
+  dynamodb:
+    start:
+      port: 8000
+      inMemory: true # Or false for persistent data
+      migrate: true
+    stages:
+      - dev
 
 appSync:
   name: ${self:service}-api
@@ -120,7 +133,6 @@ appSync:
       name: addBookDataSource
       config:
         functionArn: !GetAtt AddBookLambdaFunction.Arn
-
 
   pipelineFunctions:
     helloPipeline:
