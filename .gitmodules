@@ -1,0 +1,3 @@
+[submodule "sls/appsync-lambda-demo1"]
+	path = sls/appsync-lambda-demo1
+	url = https://github.com/amardeep05011990/crud-next-express.git
