@@ -1,0 +1,58 @@
+<div class="container mt-4">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="row g-3">
+    
+      <div class="col-md-12">
+        <label for="name" class="form-label">Name</label>
+        <input type="text" class="form-control" id="name" formControlName="name">
+        <div *ngIf="form.get('name')?.invalid && form.get('name')?.touched" class="text-danger">
+          Name is required
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <label for="email" class="form-label">Email</label>
+        <input type="text" class="form-control" id="email" formControlName="email">
+        <div *ngIf="form.get('email')?.invalid && form.get('email')?.touched" class="text-danger">
+          Email is required
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <label for="gage" class="form-label">Gage</label>
+        <input type="text" class="form-control" id="gage" formControlName="gage">
+        <div *ngIf="form.get('gage')?.invalid && form.get('gage')?.touched" class="text-danger">
+          Gage is required
+        </div>
+      </div>
+    <div class="col-12">
+      <button type="submit" class="btn btn-primary me-2">
+        {{ editingIndex !== null ? 'Update' : 'Add' }} Users
+      </button>
+      <button type="button" class="btn btn-secondary" (click)="form.reset(); editingIndex=null">Reset</button>
+    </div>
+  </form>
+
+  <hr>
+
+  <table class="table table-striped mt-3" *ngIf="items.length">
+    <thead>
+      <tr>
+        <th>Name</th>
+<th>Email</th>
+<th>Gage</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of items; let i = index">
+        <td>{{ item.name }}</td>
+<td>{{ item.email }}</td>
+<td>{{ item.gage }}</td>
+        <td>
+          <button class="btn btn-sm btn-warning me-2" (click)="editItem(i)">Edit</button>
+          <button class="btn btn-sm btn-danger" (click)="deleteItem(i)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

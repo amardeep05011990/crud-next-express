@@ -1,0 +1,69 @@
+import { Injectable } from '@angular/core';
+import { Schema } from './schema';
+
+// ⬇️ Paste your JSON schema here (or load via HTTP)
+const SCHEMA: Schema = {
+  "collections": [
+    {
+      "id": "ab2f564a-8ecf-4c5b-9b48-8cf0053295c0",
+      "name": "students",
+      "fields": [
+        {
+          "name": "city",
+          "type": "String",
+          "form": { "input": "select", "options": ["jaipur","patna","banglore"], "grid": 6 }
+        },
+        {
+          "name": "gender",
+          "type": "String",
+          "form": { "input": "radio", "options": ["male","female"], "grid": 6 }
+        },
+        {
+          "name": "title",
+          "type": "String",
+          "validation": { "required": { "value": true, "message": "" } },
+          "form": { "input": "multiselect", "options": ["asdf1","asdf2","asdf3","asdf4","asdf5"], "grid": 12 }
+        },
+        { "name": "asdf123333", "type": "String" }
+      ]
+    },
+    {
+      "id": "eae0fdb4-e745-4615-8f78-fcaa007c7622",
+      "name": "assignments",
+      "fields": [
+        {
+          "name": "title",
+          "type": "String",
+          "validation": { "required": { "value": true, "message": "" } },
+          "form": { "input": "multiselect", "options": ["asdf1","asdf2","asdf3","asdf4","asdf5"], "grid": 12 }
+        }
+      ]
+    },
+    {
+      "id": "5abd5323-2889-4d8a-b269-80c6c29c3c42",
+      "name": "users",
+      "fields": [
+        { "name": "name", "type": "String", "validation": { "required": { "value": true, "message": "" } } },
+        { "name": "email", "type": "String", "validation": { "required": { "value": true, "message": "" } } },
+        { "name": "gage", "type": "Number" }
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "relationType": "one-to-many",
+      "from": "ab2f564a-8ecf-4c5b-9b48-8cf0053295c0",
+      "to": "eae0fdb4-e745-4615-8f78-fcaa007c7622",
+      "label": " →  (one-to-many)",
+      "fromField": "",
+      "toField": ""
+    }
+  ]
+};
+
+@Injectable({ providedIn: 'root' })
+export class SchemaService {
+  getSchema(): Schema {
+    return SCHEMA;
+  }
+}

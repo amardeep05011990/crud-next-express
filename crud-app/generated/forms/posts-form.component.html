@@ -1,0 +1,48 @@
+<div class="container mt-4">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="row g-3">
+    
+      <div class="col-md-12">
+        <label for="title" class="form-label">Title</label>
+        <input type="text" class="form-control" id="title" formControlName="title">
+        <div *ngIf="form.get('title')?.invalid && form.get('title')?.touched" class="text-danger">
+          Title is required
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <label for="descriptions" class="form-label">Descriptions</label>
+        <input type="text" class="form-control" id="descriptions" formControlName="descriptions">
+        <div *ngIf="form.get('descriptions')?.invalid && form.get('descriptions')?.touched" class="text-danger">
+          Descriptions is required
+        </div>
+      </div>
+    <div class="col-12">
+      <button type="submit" class="btn btn-primary me-2">
+        {{ editingIndex !== null ? 'Update' : 'Add' }} Posts
+      </button>
+      <button type="button" class="btn btn-secondary" (click)="form.reset(); editingIndex=null">Reset</button>
+    </div>
+  </form>
+
+  <hr>
+
+  <table class="table table-striped mt-3" *ngIf="items.length">
+    <thead>
+      <tr>
+        <th>Title</th>
+<th>Descriptions</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of items; let i = index">
+        <td>{{ item.title }}</td>
+<td>{{ item.descriptions }}</td>
+        <td>
+          <button class="btn btn-sm btn-warning me-2" (click)="editItem(i)">Edit</button>
+          <button class="btn btn-sm btn-danger" (click)="deleteItem(i)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

@@ -2,7 +2,7 @@
 import { HomeComponent } from './home/home.component';
 import { UsersComponent } from './users/users.component';
 import { CrudComponent } from './forms/crud/crud.component';
-import { DynamicFormComponent } from './forms/dynamic-form/dynamic-form.component';
+import { DynamicFormGroupComponent } from './forms/dynamic-form/dynamic-form-group.component';
 import { UserFormComponent } from './forms/user-form/user-form.component';
 
 // export const routes: Routes = [
@@ -23,6 +23,15 @@ import { Routes } from '@angular/router';
 import { Component } from '@angular/core';
 import { LayoutComponent } from './layout/layout.component';
 import { LandingComponent } from './front/landing/landing.component';
+import { FrontlayoutComponent } from './front/shared/frontlayout/frontlayout.component';
+import { FronthomeComponent } from './front/shared/fronthome/fronthome.component';
+import { ContactsComponent } from './front/shared/contacts/contacts.component';
+import { TestimonialsComponent } from './front/shared/testimonials/testimonials.component';
+import { AboutComponent } from './front/about/about.component';
+import { CoursesComponent } from './front/courses/courses.component';
+import { AddStudentComponent } from './front/students/add/add.component';
+import { DynamicFormComponent } from './generator/dynamic-form/dynamic-form.component';
+import { DynamicFormPageComponent } from './generator/dynamic-form-page/dynamic-form-page.component';
 
 @Component({ standalone: true, template: `<h2 class="mb-3">Dashboard</h2><p>Welcome!</p>` })
 export class DashboardPage {}
@@ -41,7 +50,14 @@ export class NotificationsPage {}
 
 export const routes: Routes = [
     {
-    path:'', component: LandingComponent
+    path:'', component: FrontlayoutComponent,
+    children: [
+       { path: '', component: FronthomeComponent },
+        { path: 'about', component: AboutComponent },
+        { path: 'courses', component: CoursesComponent },
+        { path: 'testimonials', component:  TestimonialsComponent},
+        { path: 'contact', component: ContactsComponent },
+    ]
   },
   {
     path: 'admin',
@@ -56,10 +72,17 @@ export const routes: Routes = [
       {path: "home", component: HomeComponent},
       {path: "users", component: UsersComponent},
       {path: "crud",  component: CrudComponent},
-      {path: "dynamicform",  component: DynamicFormComponent},
+      {path: "dynamicformgroup",  component: DynamicFormGroupComponent},
       { path: 'userform/add', component: UserFormComponent ,  data: { breadcrumb: 'add' }},
       { path: 'userform/edit/:id', component: UserFormComponent },
-      { path: '', redirectTo: 'users', pathMatch: 'full' }
+      {path: "addstudents", component: AddStudentComponent},
+        {path: 'dynamicform', component: DynamicFormComponent},
+        {path: 'dynamicformpage', component: DynamicFormPageComponent},
+
+
+
+      { path: '', redirectTo: 'users', pathMatch: 'full' },
+
     ]
   },
 

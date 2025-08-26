@@ -3,12 +3,12 @@ import { Component } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 
 @Component({
-  selector: 'app-dynamic-form',
-  templateUrl: './dynamic-form.component.html',
+  selector: 'app-dynamic-form-group',
+  templateUrl: './dynamic-form-group.component.html',
   standalone: true,
   imports: [FormsModule, ReactiveFormsModule, CommonModule]
 })
-export class DynamicFormComponent {
+export class DynamicFormGroupComponent {
   userForm: FormGroup;
   isEdit = false;
   constructor(private fb: FormBuilder) {

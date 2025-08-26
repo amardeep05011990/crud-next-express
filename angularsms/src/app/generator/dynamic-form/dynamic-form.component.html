@@ -1,0 +1,121 @@
+<div *ngIf="collection; else noCollection">
+  <div class="card shadow-sm border-0">
+    <div class="card-header bg-primary text-white">
+      <div class="d-flex align-items-center justify-content-between">
+        <h5 class="mb-0">Create / Edit {{ collection?.name | titlecase }}</h5>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <div class="row g-3">
+          <ng-container *ngFor="let field of collection?.fields">
+            <div [class]="gridClass(field)">
+              <!-- Switch by input type -->
+              <ng-container [ngSwitch]="inputOf(field)">
+
+                <!-- text / number / textarea -->
+                <ng-container *ngSwitchCase="'text'">
+                  <label class="form-label">{{ labelOf(field) }}</label>
+                  <input type="text" class="form-control"
+                         [placeholder]="field.form?.placeholder || labelOf(field)"
+                         [formControlName]="field.name"
+                         [class.is-invalid]="ctrl(field.name).touched && ctrl(field.name).invalid">
+                  <div class="invalid-feedback">Please enter a valid {{ field.name }}.</div>
+                </ng-container>
+
+                <ng-container *ngSwitchCase="'number'">
+                  <label class="form-label">{{ labelOf(field) }}</label>
+                  <input type="number" class="form-control"
+                         [placeholder]="field.form?.placeholder || labelOf(field)"
+                         [formControlName]="field.name"
+                         [class.is-invalid]="ctrl(field.name).touched && ctrl(field.name).invalid">
+                  <div class="invalid-feedback">Please enter a valid {{ field.name }}.</div>
+                </ng-container>
+
+                <ng-container *ngSwitchCase="'textarea'">
+                  <label class="form-label">{{ labelOf(field) }}</label>
+                  <textarea rows="3" class="form-control"
+                            [placeholder]="field.form?.placeholder || labelOf(field)"
+                            [formControlName]="field.name"
+                            [class.is-invalid]="ctrl(field.name).touched && ctrl(field.name).invalid"></textarea>
+                  <div class="invalid-feedback">Please enter a valid {{ field.name }}.</div>
+                </ng-container>
+
+                <!-- select -->
+                <ng-container *ngSwitchCase="'select'">
+                  <label class="form-label">{{ labelOf(field) }}</label>
+                  <select class="form-select"
+                          [formControlName]="field.name"
+                          [class.is-invalid]="ctrl(field.name).touched && ctrl(field.name).invalid">
+                    <option value="">-- Select --</option>
+                    <option *ngFor="let opt of optionsOf(field)" [value]="opt">{{ opt }}</option>
+                  </select>
+                  <div class="invalid-feedback">Please select {{ field.name }}.</div>
+                </ng-container>
+
+                <!-- multiselect -->
+                <ng-container *ngSwitchCase="'multiselect'">
+                  <label class="form-label">{{ labelOf(field) }}</label>
+                  <select multiple class="form-select"
+                          [formControlName]="field.name"
+                          [class.is-invalid]="ctrl(field.name).touched && ctrl(field.name).invalid">
+                    <option *ngFor="let opt of optionsOf(field)" [value]="opt">{{ opt }}</option>
+                  </select>
+                  <div class="form-text">Hold Ctrl/Cmd to select multiple.</div>
+                  <div class="invalid-feedback">Please select at least one {{ field.name }}.</div>
+                </ng-container>
+
+                <!-- radio -->
+                <ng-container *ngSwitchCase="'radio'">
+                  <label class="form-label d-block">{{ labelOf(field) }}</label>
+                  <div class="d-flex gap-3 flex-wrap">
+                    <div class="form-check" *ngFor="let opt of optionsOf(field)">
+                      <input class="form-check-input" type="radio"
+                             [name]="field.name" [value]="opt" [formControlName]="field.name">
+                      <label class="form-check-label">{{ opt }}</label>
+                    </div>
+                  </div>
+                  <div class="text-danger small mt-1"
+                       *ngIf="ctrl(field.name).touched && ctrl(field.name).invalid">
+                       Please select {{ field.name }}.
+                  </div>
+                </ng-container>
+
+                <!-- checkbox -->
+                <ng-container *ngSwitchCase="'checkbox'">
+                  <div class="form-check mt-4">
+                    <input class="form-check-input" type="checkbox" [formControlName]="field.name" [id]="field.name">
+                    <label class="form-check-label" [for]="field.name">{{ labelOf(field) }}</label>
+                  </div>
+                </ng-container>
+
+                <!-- default to text -->
+                <ng-container *ngSwitchDefault>
+                  <label class="form-label">{{ labelOf(field) }}</label>
+                  <input type="text" class="form-control"
+                         [formControlName]="field.name"
+                         [class.is-invalid]="ctrl(field.name).touched && ctrl(field.name).invalid">
+                  <div class="invalid-feedback">Please enter a valid {{ field.name }}.</div>
+                </ng-container>
+
+              </ng-container>
+            </div>
+          </ng-container>
+        </div>
+
+        <div class="d-flex justify-content-end mt-4 gap-2">
+          <button type="reset" class="btn btn-outline-secondary" (click)="form.reset()">Reset</button>
+          <button type="submit" class="btn btn-primary" [disabled]="submitting">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Debug (optional) -->
+  <pre class="bg-light p-3 mt-3 rounded small">{{ form.value | json }}</pre>
+</div>
+
+<ng-template #noCollection>
+  <div class="alert alert-warning">Collection "{{ collectionName }}" not found in schema.</div>
+</ng-template>
