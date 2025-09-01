@@ -32,6 +32,10 @@ import { CoursesComponent } from './front/courses/courses.component';
 import { AddStudentComponent } from './front/students/add/add.component';
 import { DynamicFormComponent } from './generator/dynamic-form/dynamic-form.component';
 import { DynamicFormPageComponent } from './generator/dynamic-form-page/dynamic-form-page.component';
+// import { PostsFormComponent } from './generator/generated/forms/posts-form/posts-form.component';
+import { PostsListComponent } from './generator/generated/forms/posts-form/posts-list.component';
+import { PostsFormComponent } from './generator/generated/forms/posts-form/posts-form.component';
+
 
 @Component({ standalone: true, template: `<h2 class="mb-3">Dashboard</h2><p>Welcome!</p>` })
 export class DashboardPage {}
@@ -78,6 +82,9 @@ export const routes: Routes = [
       {path: "addstudents", component: AddStudentComponent},
         {path: 'dynamicform', component: DynamicFormComponent},
         {path: 'dynamicformpage', component: DynamicFormPageComponent},
+        {path: "posts/add", component: PostsFormComponent},
+        {path: "posts/lists", component: PostsListComponent},
+
 
 
 

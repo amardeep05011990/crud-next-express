@@ -1,0 +1,40 @@
+<!-- Normal Pagination (Prev / Next only, server-side friendly) -->
+<nav *ngIf="mode === 'normal' && totalPages > 1" aria-label="Normal pagination" class="d-flex justify-content-center">
+  <ul class="pagination">
+    <li class="page-item" [class.disabled]="page === 1">
+      <button class="page-link" (click)="goToPage(page - 1)">Prev</button>
+    </li>
+
+    <li class="page-item" [class.disabled]="page === totalPages">
+      <button class="page-link" (click)="goToPage(page + 1)">Next</button>
+    </li>
+  </ul>
+</nav>
+
+<!-- Google-like Pagination (numbered + ellipsis) -->
+<nav *ngIf="mode === 'google' && totalPages > 1" aria-label="Google-like pagination" class="d-flex justify-content-center">
+  <ul class="pagination">
+    <li class="page-item" [class.disabled]="page === 1">
+      <button class="page-link" (click)="goToPage(page - 1)">Prev</button>
+    </li>
+
+    <li class="page-item"
+        *ngFor="let p of paginationRange"
+        [class.disabled]="p === '...'"
+        [class.active]="p === page">
+<button *ngIf="isNumber(p)" class="page-link" (click)="goToPage(p)">
+  {{ p }}
+</button>
+
+      <span *ngIf="p === '...'" class="page-link">...</span>
+    </li>
+
+    <li class="page-item" [class.disabled]="page === totalPages">
+      <button class="page-link" (click)="goToPage(page + 1)">Next</button>
+    </li>
+  </ul>
+</nav>
+
+<p class="text-center text-muted small">
+  Page {{ page }} of {{ totalPages }} ({{ total }} records)
+</p>

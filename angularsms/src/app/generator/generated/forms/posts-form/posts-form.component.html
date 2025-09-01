@@ -1,4 +1,13 @@
 <div class="container mt-4">
+
+  <!-- Success / Error Messages -->
+  <div *ngIf="successMessage" class="alert alert-success" role="alert">
+    {{ successMessage }}
+  </div>
+  <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+    {{ errorMessage }}
+  </div>
+
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="row g-3">
     
       <div class="col-md-12">
@@ -17,32 +26,11 @@
         </div>
       </div>
     <div class="col-12">
-      <button type="submit" class="btn btn-primary me-2">
-        {{ editingIndex !== null ? 'Update' : 'Add' }} Posts
+      <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">
+        <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
+        {{ item?._id ? 'Update' : 'Add' }} Posts
       </button>
-      <button type="button" class="btn btn-secondary" (click)="form.reset(); editingIndex=null">Reset</button>
+      <button *ngIf="item" type="button" class="btn btn-secondary ms-2" (click)="resetForm()">Cancel</button>
     </div>
   </form>
-
-  <hr>
-
-  <table class="table table-striped mt-3" *ngIf="items.length">
-    <thead>
-      <tr>
-        <th>Title</th>
-<th>Descriptions</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let item of items; let i = index">
-        <td>{{ item.title }}</td>
-<td>{{ item.descriptions }}</td>
-        <td>
-          <button class="btn btn-sm btn-warning me-2" (click)="editItem(i)">Edit</button>
-          <button class="btn btn-sm btn-danger" (click)="deleteItem(i)">Delete</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
 </div>

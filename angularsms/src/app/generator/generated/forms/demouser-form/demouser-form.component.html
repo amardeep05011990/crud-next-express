@@ -1,0 +1,28 @@
+<div class="container mt-4">
+
+  <!-- Success / Error Messages -->
+  <div *ngIf="successMessage" class="alert alert-success" role="alert">
+    {{ successMessage }}
+  </div>
+  <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+    {{ errorMessage }}
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="row g-3">
+    
+      <div class="col-md-12">
+        <label for="name" class="form-label">Name</label>
+        <input type="text" class="form-control" id="name" formControlName="name">
+        <div *ngIf="form.get('name')?.invalid && form.get('name')?.touched" class="text-danger">
+          Name is required
+        </div>
+      </div>
+    <div class="col-12">
+      <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">
+        <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
+        {{ item?._id ? 'Update' : 'Add' }} Demouser
+      </button>
+      <button *ngIf="item" type="button" class="btn btn-secondary ms-2" (click)="resetForm()">Cancel</button>
+    </div>
+  </form>
+</div>

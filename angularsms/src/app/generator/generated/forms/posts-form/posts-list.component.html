@@ -1,0 +1,46 @@
+<div class="container mt-4">
+
+  <!-- Show Form when editing or adding -->
+  <app-posts-form *ngIf="selectedItem" [item]="selectedItem" (formSaved)="onFormSaved()"></app-posts-form>
+
+  <div *ngIf="!selectedItem">
+    <div class="d-flex justify-content-between mb-3">
+      <input type="text" class="form-control w-25" placeholder="Search..." [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()">
+    </div>
+
+    <div *ngIf="loading" class="text-center my-3">
+      <div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>
+    </div>
+
+    <table class="table table-striped mt-3" *ngIf="items.length && !loading">
+      <thead>
+        <tr>
+          <th>Title</th>
+<th>Descriptions</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of items">
+          <td>{{ item.title }}</td>
+<td>{{ item.descriptions }}</td>
+          <td>
+            <button class="btn btn-sm btn-info me-2" (click)="editItem(item)">Edit</button>
+            <button class="btn btn-sm btn-danger" (click)="deleteItem(item._id)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p *ngIf="!items.length && !loading" class="text-muted">No results found.</p>
+
+    <!-- Pagination -->
+    <app-pagination
+      [page]="page"
+      [totalPages]="totalPages"
+      [total]="total"
+      [mode]="'google'"
+      (pageChange)="changePage($event)">
+    </app-pagination>
+  </div>
+</div>

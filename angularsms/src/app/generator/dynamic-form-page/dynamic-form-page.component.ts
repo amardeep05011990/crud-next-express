@@ -4,12 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { SchemaService } from '../schema.service';
 import { Schema } from './../schema';
 import { DynamicFormComponent } from '../dynamic-form/dynamic-form.component';
-import { PostsFormComponent } from '../forms/posts-form.component';
+
 
 @Component({
   selector: 'app-dynamic-form-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, DynamicFormComponent, PostsFormComponent],
+  imports: [CommonModule, FormsModule, DynamicFormComponent],
   templateUrl: './dynamic-form-page.component.html'
 })
 export class DynamicFormPageComponent {
