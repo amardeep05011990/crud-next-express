@@ -1,3 +1,4 @@
+// ========= LIST COMPONENT =========
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -5,22 +6,31 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../environments/environment';
 import { PaginationComponent } from '../../../pagination/pagination.component';
 import { PostsFormComponent } from './posts-form.component';
+import { PostsViewComponent } from './posts-view.component';
 
 @Component({
   selector: 'app-posts-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, PaginationComponent, PostsFormComponent],
+  imports: [CommonModule, FormsModule, PaginationComponent, PostsFormComponent, PostsViewComponent],
   templateUrl: './posts-list.component.html'
 })
 export class PostsListComponent implements OnInit {
   items: any[] = [];
-  searchTerm: string = '';
   page: number = 1;
   limit: number = 2;
   totalPages: number = 0;
   total: number = 0;
   loading: boolean = false;
   selectedItem: any = null;
+
+  // ✅ Global search + field filters
+  searchTerm: string = '';
+  filters: any = {
+    title: '',
+    descriptions: ''
+  };
+
+  globalMessage: { type: 'success' | 'error', text: string } | null = null;
 
   constructor(private http: HttpClient) {}
 
@@ -30,15 +40,40 @@ export class PostsListComponent implements OnInit {
 
   fetchItems() {
     this.loading = true;
-    this.http.get<any>(`${environment.apiBaseUrl}/api/posts?page=${this.page}&limit=${this.limit}&search=${this.searchTerm}`)
+
+    // Build query params
+    let params = `?page=${this.page}&limit=${this.limit}`;
+    if (this.searchTerm) {
+      params += `&search=${this.searchTerm}`;
+    }
+    for (const key in this.filters) {
+      if (this.filters[key]) {
+        params += `&${key}=${this.filters[key]}`;
+      }
+    }
+
+    this.http.get<any>(`${environment.apiBaseUrl}/api/posts${params}`)
       .subscribe(res => {
-        this.items = res.data;
+        this.items = res.data || [];
         this.page = res.page;
         this.limit = res.limit;
         this.total = res.total;
         this.totalPages = res.totalPages;
         this.loading = false;
+      }, _err => {
+        this.items = [];
+        this.loading = false;
       });
+  }
+
+  applyFilters() {
+    this.page = 1;
+    this.fetchItems();
+  }
+
+  onSearch() {
+    this.page = 1;
+    this.fetchItems();
   }
 
   editItem(item: any) {
@@ -48,13 +83,9 @@ export class PostsListComponent implements OnInit {
   deleteItem(id: string) {
     if (!confirm('Delete this item?')) return;
     this.http.delete(`${environment.apiBaseUrl}/api/posts/${id}`).subscribe(() => {
+      this.globalMessage = { type: 'success', text: 'Posts deleted successfully!' };
       this.fetchItems();
     });
-  }
-
-  onSearchChange() {
-    this.page = 1;
-    this.fetchItems();
   }
 
   changePage(newPage: number) {
@@ -66,5 +97,26 @@ export class PostsListComponent implements OnInit {
   onFormSaved() {
     this.selectedItem = null;
     this.fetchItems();
+  }
+
+  onMessage(msg: { type: 'success' | 'error', text: string }) {
+    this.globalMessage = msg;
+    setTimeout(() => this.globalMessage = null, 4000);
+  }
+
+  addItem() {
+    this.selectedItem = {}; // open empty form
+  }
+
+  onFormCancelled() {
+    this.selectedItem = null; // back to list
+  }
+  selectedViewId: string | null = null;
+
+  viewItem(item: any) {
+    this.selectedViewId = item._id;
+  }
+  closeView() {
+    this.selectedViewId = null;
   }
 }

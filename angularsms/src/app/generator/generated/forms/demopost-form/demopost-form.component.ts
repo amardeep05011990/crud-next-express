@@ -1,3 +1,4 @@
+// ========= FORM COMPONENT =========
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -13,8 +14,10 @@ import { environment } from '../../../../../environments/environment';
 export class DemopostFormComponent implements OnInit {
   @Input() item: any = null;
   @Output() formSaved = new EventEmitter<void>();
-  form!: FormGroup;
+  @Output() message = new EventEmitter<{ type: 'success' | 'error', text: string }>();
+  @Output() formCancelled = new EventEmitter<void>();
 
+  form!: FormGroup;
   successMessage: string = '';
   errorMessage: string = '';
   isSubmitting: boolean = false;
@@ -49,12 +52,14 @@ export class DemopostFormComponent implements OnInit {
         next: () => {
           this.successMessage = 'Demopost updated successfully!';
           this.errorMessage = '';
+          this.message.emit({ type: 'success', text: this.successMessage });
           this.formSaved.emit();
           this.resetForm();
         },
         error: () => {
           this.errorMessage = 'Failed to update Demopost.';
           this.successMessage = '';
+          // this.message.emit({ type: 'error', text: this.errorMessage });
           this.isSubmitting = false;
         }
       });
@@ -64,12 +69,14 @@ export class DemopostFormComponent implements OnInit {
         next: () => {
           this.successMessage = 'Demopost added successfully!';
           this.errorMessage = '';
+          this.message.emit({ type: 'success', text: this.successMessage });
           this.formSaved.emit();
           this.resetForm();
         },
         error: () => {
           this.errorMessage = 'Failed to add Demopost.';
           this.successMessage = '';
+          this.message.emit({ type: 'error', text: this.errorMessage });
           this.isSubmitting = false;
         }
       });
@@ -80,6 +87,10 @@ export class DemopostFormComponent implements OnInit {
     this.form.reset();
     this.item = null;
     this.isSubmitting = false;
-    setTimeout(() => this.successMessage = '', 3000);
+    setTimeout(() => this.successMessage = '', 2000);
+  }
+
+  cancel() {
+    this.formCancelled.emit();
   }
 }

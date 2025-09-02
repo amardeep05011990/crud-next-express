@@ -1,0 +1,25 @@
+<div class="container mt-4">
+  <h3>Demouser Details</h3>
+
+  <button class="btn btn-secondary mb-3" (click)="closeView()">Back</button> <!-- 👈 -->
+
+  <div *ngIf="loading" class="text-center my-3">
+    <div class="spinner-border" role="status"></div>
+  </div>
+
+  <div *ngIf="!loading && item">
+    <table class="table table-bordered">
+      <tbody>
+        
+        <tr>
+          <th style="width:200px">Name</th>
+          <td>{{ item.name }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="!loading && !item" class="alert alert-warning">
+    Record not found.
+  </div>
+</div>

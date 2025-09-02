@@ -1,12 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
+import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { BreadcrumbComponent } from '../shared/breadcrumb/breadcrumb.component';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, BreadcrumbComponent],
+  imports: [RouterOutlet, CommonModule, BreadcrumbComponent, RouterModule],
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss']
 })

@@ -38,7 +38,10 @@
         <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
         {{ item?._id ? 'Update' : 'Add' }} Users
       </button>
-      <button *ngIf="item" type="button" class="btn btn-secondary ms-2" (click)="resetForm()">Cancel</button>
+      <button *ngIf="item" type="button" class="btn btn-secondary ms-2" (click)="resetForm()">Reset</button>
+      <button type="button" class="btn btn-secondary ms-2" (click)="cancel()">
+        Back
+      </button>
     </div>
   </form>
 </div>
