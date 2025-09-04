@@ -27,9 +27,9 @@ export class AssignmentsFormComponent implements OnInit {
   constructor(private fb: FormBuilder, private http: HttpClient) {}
 
   ngOnInit() {
-    this.form = this.fb.group({
-      title: ['', Validators.required]
-    });
+this.form = this.fb.group({
+  title: ['', [Validators.required]]
+});
 
     if (this.item) {
       this.form.patchValue(this.item);

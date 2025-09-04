@@ -427,10 +427,16 @@ const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
 const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerSpec = require("./swaggerspec");
+const cookieParser = require('cookie-parser');
 
 
 const app = express();
-app.use(cors());
+app.use(cookieParser());
+// app.use(cors());
+app.use(cors({
+  origin: "http://localhost:4200",
+  credentials: true // ✅ allow cookies
+}));
 app.use(express.json());
 
 // MongoDB URI
@@ -561,10 +567,23 @@ const swaggerSpec = swaggerJsdoc({
     },
     components: {
       schemas, // Inject the generated schemas here
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
     },
+    security: [
+      {
+        bearerAuth: [],
+      },
+    ],
   },
-  apis: ["./routes/*.js"], // path to your route files with Swagger comments
+  apis: ["./routes/*.js","./auth/routes/*.js"], // path to your route files with Swagger comments
 });
+
 
 module.exports = swaggerSpec;
 `

@@ -20,6 +20,10 @@ import { BreadcrumbComponent } from "../shared/breadcrumb/breadcrumb.component";
   styleUrls: ['./layout.component.scss']
 })
 export class LayoutComponent {
+isSidebarOpen: any;
+closeSidebar() {
+throw new Error('Method not implemented.');
+}
 currentYear: any;
 user: any;
 logout() {

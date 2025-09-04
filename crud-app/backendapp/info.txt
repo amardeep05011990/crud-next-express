@@ -1,0 +1,2 @@
+authenticate, authorize,
+app.use("/api/auth", require("./auth/routes/auth"));

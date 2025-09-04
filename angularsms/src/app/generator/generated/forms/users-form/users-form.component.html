@@ -10,29 +10,29 @@
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="row g-3">
     
-      <div class="col-md-12">
-        <label for="name" class="form-label">Name</label>
-        <input type="text" class="form-control" id="name" formControlName="name">
-        <div *ngIf="form.get('name')?.invalid && form.get('name')?.touched" class="text-danger">
-          Name is required
-        </div>
+    <div class="col-md-12">
+      <label for="name" class="form-label">Name</label>
+      <input type="text" class="form-control" id="name" formControlName="name">
+      <div *ngIf="form.get('name')?.invalid && form.get('name')?.touched" class="text-danger">
+        <div *ngIf="form.get('name')?.errors?.['required']">Name is required.</div>
       </div>
+    </div>
 
-      <div class="col-md-12">
-        <label for="email" class="form-label">Email</label>
-        <input type="text" class="form-control" id="email" formControlName="email">
-        <div *ngIf="form.get('email')?.invalid && form.get('email')?.touched" class="text-danger">
-          Email is required
-        </div>
+    <div class="col-md-12">
+      <label for="email" class="form-label">Email</label>
+      <input type="text" class="form-control" id="email" formControlName="email">
+      <div *ngIf="form.get('email')?.invalid && form.get('email')?.touched" class="text-danger">
+        <div *ngIf="form.get('email')?.errors?.['required']">Email is required.</div>
       </div>
+    </div>
 
-      <div class="col-md-12">
-        <label for="gage" class="form-label">Gage</label>
-        <input type="text" class="form-control" id="gage" formControlName="gage">
-        <div *ngIf="form.get('gage')?.invalid && form.get('gage')?.touched" class="text-danger">
-          Gage is required
-        </div>
+    <div class="col-md-12">
+      <label for="gage" class="form-label">Gage</label>
+      <input type="text" class="form-control" id="gage" formControlName="gage">
+      <div *ngIf="form.get('gage')?.invalid && form.get('gage')?.touched" class="text-danger">
+        
       </div>
+    </div>
     <div class="col-12">
       <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">
         <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>

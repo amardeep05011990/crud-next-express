@@ -27,10 +27,10 @@ export class PostsFormComponent implements OnInit {
   constructor(private fb: FormBuilder, private http: HttpClient) {}
 
   ngOnInit() {
-    this.form = this.fb.group({
-      title: ['', Validators.required],
-      descriptions: ['', ]
-    });
+this.form = this.fb.group({
+  title: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
+      descriptions: ['', []]
+});
 
     if (this.item) {
       this.form.patchValue(this.item);

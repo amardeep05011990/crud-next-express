@@ -36,9 +36,8 @@ import { PostsFormComponent } from './generator/generated/forms/posts-form/posts
 import { PostsListComponent } from './generator/generated/forms/posts-form/posts-list.component';
 import { StudentsListComponent } from './generator/generated/forms/students-form/students-list.component';
 import { UsersListComponent } from './generator/generated/forms/users-form/users-list.component';
-// import { PostsFormComponent } from './generator/generated/forms/posts-form/posts-form.component';
-// import { PostsListComponent } from './generator/generated/forms/posts-form/posts-list.component';
-// import { PostsFormComponent } from './generator/generated/forms/posts-form/posts-form.component';
+import { LoginComponent } from './login/login.component';
+
 
 
 @Component({ standalone: true, template: `<h2 class="mb-3">Dashboard</h2><p>Welcome!</p>` })
@@ -65,6 +64,8 @@ export const routes: Routes = [
         { path: 'courses', component: CoursesComponent },
         { path: 'testimonials', component:  TestimonialsComponent},
         { path: 'contact', component: ContactsComponent },
+        { path: 'login', component: LoginComponent },
+
     ]
   },
   {

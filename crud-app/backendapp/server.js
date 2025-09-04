@@ -5,10 +5,16 @@ const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
 const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerSpec = require("./swaggerspec");
+const cookieParser = require('cookie-parser');
 
 
 const app = express();
-app.use(cors());
+app.use(cookieParser());
+// app.use(cors());
+app.use(cors({
+  origin: "http://localhost:4200",
+  credentials: true // ✅ allow cookies
+}));
 app.use(express.json());
 
 // MongoDB URI
@@ -47,5 +53,7 @@ app.use("/api/users", require("./routes/users.routes"));
 app.use("/api/posts", require("./routes/posts.routes"));
 app.use("/api/demouser", require("./routes/demouser.routes"));
 app.use("/api/demopost", require("./routes/demopost.routes"));
+app.use("/api/auth", require("./auth/routes/auth"));
+
 
 app.listen(5000, () => console.log("Server running on port 5000"));

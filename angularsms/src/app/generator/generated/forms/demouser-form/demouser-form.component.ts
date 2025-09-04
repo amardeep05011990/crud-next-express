@@ -27,9 +27,9 @@ export class DemouserFormComponent implements OnInit {
   constructor(private fb: FormBuilder, private http: HttpClient) {}
 
   ngOnInit() {
-    this.form = this.fb.group({
-      name: ['', ]
-    });
+this.form = this.fb.group({
+  name: ['', []]
+});
 
     if (this.item) {
       this.form.patchValue(this.item);

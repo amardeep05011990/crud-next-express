@@ -27,12 +27,12 @@ export class StudentsFormComponent implements OnInit {
   constructor(private fb: FormBuilder, private http: HttpClient) {}
 
   ngOnInit() {
-    this.form = this.fb.group({
-      city: ['', ],
-      gender: ['', ],
-      title: ['', Validators.required],
-      asdf123333: ['', ]
-    });
+this.form = this.fb.group({
+  city: ['', []],
+      gender: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(30)]],
+      title: ['', [Validators.required]],
+      asdf123333: ['', []]
+});
 
     if (this.item) {
       this.form.patchValue(this.item);

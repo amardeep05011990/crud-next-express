@@ -53,7 +53,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let item of items">
+        <tr *ngFor="let item of items; trackBy: trackById">
           <td>{{ item.title }}</td>
           <td>
             <button class="btn btn-sm btn-info me-2" (click)="editItem(item)">Edit</button>

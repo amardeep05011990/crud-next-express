@@ -1,8 +1,10 @@
 // ========= LIST COMPONENT =========
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { Subject } from 'rxjs';
+import { debounceTime, takeUntil } from 'rxjs/operators';
 import { environment } from '../../../../../environments/environment';
 import { PaginationComponent } from '../../../pagination/pagination.component';
 import { DemouserFormComponent } from './demouser-form.component';
@@ -14,14 +16,15 @@ import { DemouserViewComponent } from './demouser-view.component';
   imports: [CommonModule, FormsModule, PaginationComponent, DemouserFormComponent, DemouserViewComponent],
   templateUrl: './demouser-list.component.html'
 })
-export class DemouserListComponent implements OnInit {
+export class DemouserListComponent implements OnInit, OnDestroy {
   items: any[] = [];
   page: number = 1;
-  limit: number = 2;
+  limit: number = 5;
   totalPages: number = 0;
   total: number = 0;
   loading: boolean = false;
   selectedItem: any = null;
+  selectedViewId: string | null = null;
 
   // ✅ Global search + field filters
   searchTerm: string = '';
@@ -31,10 +34,39 @@ export class DemouserListComponent implements OnInit {
 
   globalMessage: { type: 'success' | 'error', text: string } | null = null;
 
+  // ✅ RxJS subjects for debounced inputs
+  private searchSubject = new Subject<void>();
+  private filterSubject = new Subject<void>();
+  private destroy$ = new Subject<void>();
+
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
+    // Initial load
     this.fetchItems();
+
+    // Debounced search
+    this.searchSubject.pipe(
+      debounceTime(400),
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      this.page = 1;
+      this.fetchItems();
+    });
+
+    // Debounced filters
+    this.filterSubject.pipe(
+      debounceTime(400),
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      this.page = 1;
+      this.fetchItems();
+    });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   fetchItems() {
@@ -52,6 +84,7 @@ export class DemouserListComponent implements OnInit {
     }
 
     this.http.get<any>(`${environment.apiBaseUrl}/api/demouser${params}`)
+      .pipe(takeUntil(this.destroy$))
       .subscribe(res => {
         this.items = res.data || [];
         this.page = res.page;
@@ -65,14 +98,14 @@ export class DemouserListComponent implements OnInit {
       });
   }
 
-  applyFilters() {
-    this.page = 1;
-    this.fetchItems();
+  // ✅ Triggered on typing in search box
+  onSearch() {
+    this.searchSubject.next();
   }
 
-  onSearch() {
-    this.page = 1;
-    this.fetchItems();
+  // ✅ Triggered on typing in filter inputs
+  applyFilters() {
+    this.filterSubject.next();
   }
 
   editItem(item: any) {
@@ -81,10 +114,12 @@ export class DemouserListComponent implements OnInit {
 
   deleteItem(id: string) {
     if (!confirm('Delete this item?')) return;
-    this.http.delete(`${environment.apiBaseUrl}/api/demouser/${id}`).subscribe(() => {
-      this.globalMessage = { type: 'success', text: 'Demouser deleted successfully!' };
-      this.fetchItems();
-    });
+    this.http.delete(`${environment.apiBaseUrl}/api/demouser/${id}`)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.globalMessage = { type: 'success', text: 'Demouser deleted successfully!' };
+        this.fetchItems();
+      });
   }
 
   changePage(newPage: number) {
@@ -110,12 +145,15 @@ export class DemouserListComponent implements OnInit {
   onFormCancelled() {
     this.selectedItem = null; // back to list
   }
-  selectedViewId: string | null = null;
 
   viewItem(item: any) {
     this.selectedViewId = item._id;
   }
+
   closeView() {
     this.selectedViewId = null;
+  }
+  trackById(index: number, item: any) {
+    return item._id;
   }
 }

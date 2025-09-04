@@ -27,11 +27,11 @@ export class UsersFormComponent implements OnInit {
   constructor(private fb: FormBuilder, private http: HttpClient) {}
 
   ngOnInit() {
-    this.form = this.fb.group({
-      name: ['', Validators.required],
-      email: ['', Validators.required],
-      gage: ['', ]
-    });
+this.form = this.fb.group({
+  name: ['', [Validators.required]],
+      email: ['', [Validators.required]],
+      gage: ['', []]
+});
 
     if (this.item) {
       this.form.patchValue(this.item);
