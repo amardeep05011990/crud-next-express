@@ -4,7 +4,8 @@ const { studentsValidator } = require("../validators/students.validator");
 const validate = require("../middlewares/validate");
 const router = express.Router();
 const students = require("../models/students");
-
+const authenticate = require('./../auth/middleware/authenticate')
+const authorize = require('./../auth/middleware/authorize')
 /**
  * @swagger
  * tags:

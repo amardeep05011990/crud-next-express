@@ -54,6 +54,4 @@ app.use("/api/posts", require("./routes/posts.routes"));
 app.use("/api/demouser", require("./routes/demouser.routes"));
 app.use("/api/demopost", require("./routes/demopost.routes"));
 app.use("/api/auth", require("./auth/routes/auth"));
-
-
 app.listen(5000, () => console.log("Server running on port 5000"));

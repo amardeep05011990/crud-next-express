@@ -4,7 +4,8 @@ const { demouserValidator } = require("../validators/demouser.validator");
 const validate = require("../middlewares/validate");
 const router = express.Router();
 const demouser = require("../models/demouser");
-
+const authenticate = require('./../auth/middleware/authenticate')
+const authorize = require('./../auth/middleware/authorize')
 /**
  * @swagger
  * tags:

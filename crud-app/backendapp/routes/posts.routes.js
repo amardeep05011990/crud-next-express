@@ -4,11 +4,8 @@ const { postsValidator } = require("../validators/posts.validator");
 const validate = require("../middlewares/validate");
 const router = express.Router();
 const posts = require("../models/posts");
-
 const authenticate = require('./../auth/middleware/authenticate')
 const authorize = require('./../auth/middleware/authorize')
-
-
 /**
  * @swagger
  * tags:
@@ -94,7 +91,7 @@ router.post("/", postsValidator, validate, async (req, res) => {
 // });
 
 // READ ALL with search, filter, and pagination
-router.get("/", authenticate, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const { page = 1, limit = 10, search, ...filters } = req.query;
     const query = {};
@@ -106,7 +103,7 @@ router.get("/", authenticate, async (req, res) => {
 
     // Add search on all string fields
     if (search) {
-      query["$or"] = ["title","descriptions"].map((field) => ({
+      query["$or"] = ["title","descriptions","category","tags","hobbies","author","assignment","status","isFeatured","coverImage","views","publishedDate"].map((field) => ({
         [field]: { $regex: search, $options: "i" }
       }));
     }

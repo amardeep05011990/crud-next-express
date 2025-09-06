@@ -4,7 +4,8 @@ const { demopostValidator } = require("../validators/demopost.validator");
 const validate = require("../middlewares/validate");
 const router = express.Router();
 const demopost = require("../models/demopost");
-
+const authenticate = require('./../auth/middleware/authenticate')
+const authorize = require('./../auth/middleware/authorize')
 /**
  * @swagger
  * tags:

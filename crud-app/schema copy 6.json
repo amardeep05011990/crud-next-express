@@ -143,139 +143,23 @@
           "name": "title",
           "type": "String",
           "validation": {
-            "required": { "value": true, "message": "" }
-          },
-          "form": {
-            "input": "text",
-            "grid": 12
-          }
-        },
-        {
-          "name": "descriptions",
-          "type": "String",
-          "form": {
-            "input": "textarea",
-            "grid": 12
-          }
-        },
-        {
-          "name": "category",
-          "type": "String",
-          "form": {
-            "input": "select",
-            "options": ["Tech", "Life", "Business"],
-            "grid": 6
-          }
-        },
-        {
-          "name": "tags",
-          "type": "Array",
-          "form": {
-            "input": "multiselect",
-            "options": ["Angular", "Node.js", "MongoDB", "Express", "Angular2", "Node.js2", "MongoDB2", "Express2", "Angular1", "Node.js1", "MongoDB1", "Express1", "Angular3", "Node.js3", "MongoDB3", "Express3", "Angular4", "Node.js4", "MongoDB4", "Express4"],
-            "grid": 6
-          }
-        },
-        {
-          "name": "hobbies",
-          "type": "Array", 
-          "form": {
-            "input": "checkbox-group",
-            "options": [
-              "Reading",
-              "Traveling",
-              "Cooking",
-              "Sports",
-              "Reading2",
-              "Traveling2",
-              "Cooking2",
-              "Sports2",
-              "Reading1",
-              "Traveling1",
-              "Cooking1",
-              "Sports1",
-              "Reading3",
-              "Traveling3",
-              "Cooking3",
-              "Sports3",
-              "Reading4",
-              "Traveling4",
-              "Cooking4",
-              "Sports4"
-            ],
-            "grid": 12
-          },
-          "validation": {
             "required": {
               "value": true,
-              "message": "Please select at least one hobby."
+              "message": ""
+            },
+            "minLength": {
+              "value": 3,
+              "message": ""
+            },
+            "maxLength": {
+              "value": 50,
+              "message": ""
             }
           }
         },
         {
-          "name": "author",
-          "type":  "Object",
-          "form": {
-            "input": "lookup",
-            "collection": "users",
-            "labelField": "name",
-            "valueField": "_id",
-            "grid": 6
-          }
-        },
-        {
-          "name": "assignment",
-          "type": "Object",
-          "form": {
-            "input": "lookup",
-            "collection": "assignments",
-            "labelField": "title",
-            "valueField": "_id",
-            "autocomplete": true,
-            "limit": 10,
-            "grid": 6
-          }
-        },
-        {
-          "name": "status",
-          "type": "String",
-          "form": {
-            "input": "radio",
-            "options": ["draft", "published"],
-            "grid": 6
-          }
-        },
-        {
-          "name": "isFeatured",
-          "type": "Boolean",
-          "form": {
-            "input": "checkbox",
-            "grid": 6
-          }
-        },
-        {
-          "name": "coverImage",
-          "type": "String",
-          "form": {
-            "input": "file",
-            "grid": 12
-          }
-        },
-        {
-          "name": "views",
-          "type": "Number",
-          "form": {
-            "input": "number",
-            "grid": 6
-          }
-        },
-        {
-          "name": "publishedDate",
-          "type": "Date",
-          "form": {
-            "input": "date",
-            "grid": 6
-          }
+          "name": "descriptions",
+          "type": "String"
         }
       ]
     },

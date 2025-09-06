@@ -85,7 +85,7 @@ const ${col.name}Schema = new mongoose.Schema({
   ${related ? ',\n' + related : ''}
 });
 
-module.exports = mongoose.model("${col.name}", ${col.name}Schema);
+module.exports = mongoose.models.${col.name} || mongoose.model("${col.name}", ${col.name}Schema);
 `;
 
   return {
@@ -158,7 +158,8 @@ const { ${col.name}Validator } = require("../validators/${lc}.validator");
 const validate = require("../middlewares/validate");
 const router = express.Router();
 const ${col.name} = require("../models/${col.name}");
-
+const authenticate = require('./../auth/middleware/authenticate')
+const authorize = require('./../auth/middleware/authorize')
 /**
  * @swagger
  * tags:
@@ -470,7 +471,7 @@ mongoose.connect(mongoURI, {
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 ${imports}
-
+app.use("/api/auth", require("./auth/routes/auth"));
 app.listen(5000, () => console.log("Server running on port 5000"));
 `;
 
