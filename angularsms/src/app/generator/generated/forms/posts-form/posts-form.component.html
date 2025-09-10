@@ -1,39 +1,274 @@
 <div class="container mt-4">
-
-  <!-- Success / Error Messages -->
-  <div *ngIf="successMessage" class="alert alert-success" role="alert">
-    {{ successMessage }}
-  </div>
-  <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
-    {{ errorMessage }}
-  </div>
+  <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+  <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="row g-3">
     
-    <div class="col-md-12">
-      <label for="title" class="form-label">Title</label>
-      <input type="text" class="form-control" id="title" formControlName="title">
-      <div *ngIf="form.get('title')?.invalid && form.get('title')?.touched" class="text-danger">
-        <div *ngIf="form.get('title')?.errors?.['required']">Title is required.</div><div *ngIf="form.get('title')?.errors?.['minlength']">Minimum length is 3.</div><div *ngIf="form.get('title')?.errors?.['maxlength']">Maximum length is 50.</div>
+      <div class="col-md-12">
+        <label for="title" class="form-label">Title</label>
+        <input type="text" class="form-control" id="title" formControlName="title">
+        <div *ngIf="form.get('title')?.invalid && form.get('title')?.touched" class="text-danger">
+          <div *ngIf="form.get('title')?.errors?.['required']">Title is required.</div>
+        </div>
       </div>
-    </div>
 
-    <div class="col-md-12">
-      <label for="descriptions" class="form-label">Descriptions</label>
-      <input type="text" class="form-control" id="descriptions" formControlName="descriptions">
-      <div *ngIf="form.get('descriptions')?.invalid && form.get('descriptions')?.touched" class="text-danger">
-        
+        <div class="col-md-12">
+          <label for="descriptions" class="form-label">Descriptions</label>
+          <textarea class="form-control" id="descriptions" formControlName="descriptions"></textarea>
+          <div *ngIf="form.get('descriptions')?.invalid && form.get('descriptions')?.touched" class="text-danger">
+            
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <label for="category" class="form-label">Category</label>
+          <select class="form-select" id="category" formControlName="category">
+            <option *ngFor="let opt of categoryOptions" [value]="opt">{{ opt }}</option>
+          </select>
+        </div>
+
+        <div class="col-md-6">
+          <label for="tags" class="form-label">Tags</label>
+          <select class="form-select" id="tags" formControlName="tags" multiple>
+            <option *ngFor="let opt of tagsOptions" [value]="opt">{{ opt }}</option>
+          </select>
+        </div>
+
+        <div class="col-md-12">
+          <label class="form-label">Hobbies</label>
+          <div class="d-flex flex-wrap">
+            
+              <div class="form-check me-3">
+                <input 
+                  type="checkbox" 
+                  class="form-check-input" 
+                  (change)="onCheckboxGroupChange('hobbies', $event, 'Reading')"
+                  [checked]="form.get('hobbies')?.value?.includes('Reading')">
+                <label class="form-check-label">Reading</label>
+              </div>
+              <div class="form-check me-3">
+                <input 
+                  type="checkbox" 
+                  class="form-check-input" 
+                  (change)="onCheckboxGroupChange('hobbies', $event, 'Traveling')"
+                  [checked]="form.get('hobbies')?.value?.includes('Traveling')">
+                <label class="form-check-label">Traveling</label>
+              </div>
+              <div class="form-check me-3">
+                <input 
+                  type="checkbox" 
+                  class="form-check-input" 
+                  (change)="onCheckboxGroupChange('hobbies', $event, 'Cooking')"
+                  [checked]="form.get('hobbies')?.value?.includes('Cooking')">
+                <label class="form-check-label">Cooking</label>
+              </div>
+              <div class="form-check me-3">
+                <input 
+                  type="checkbox" 
+                  class="form-check-input" 
+                  (change)="onCheckboxGroupChange('hobbies', $event, 'Sports')"
+                  [checked]="form.get('hobbies')?.value?.includes('Sports')">
+                <label class="form-check-label">Sports</label>
+              </div>
+              <div class="form-check me-3">
+                <input 
+                  type="checkbox" 
+                  class="form-check-input" 
+                  (change)="onCheckboxGroupChange('hobbies', $event, 'Reading2')"
+                  [checked]="form.get('hobbies')?.value?.includes('Reading2')">
+                <label class="form-check-label">Reading2</label>
+              </div>
+              <div class="form-check me-3">
+                <input 
+                  type="checkbox" 
+                  class="form-check-input" 
+                  (change)="onCheckboxGroupChange('hobbies', $event, 'Traveling2')"
+                  [checked]="form.get('hobbies')?.value?.includes('Traveling2')">
+                <label class="form-check-label">Traveling2</label>
+              </div>
+              <div class="form-check me-3">
+                <input 
+                  type="checkbox" 
+                  class="form-check-input" 
+                  (change)="onCheckboxGroupChange('hobbies', $event, 'Cooking2')"
+                  [checked]="form.get('hobbies')?.value?.includes('Cooking2')">
+                <label class="form-check-label">Cooking2</label>
+              </div>
+              <div class="form-check me-3">
+                <input 
+                  type="checkbox" 
+                  class="form-check-input" 
+                  (change)="onCheckboxGroupChange('hobbies', $event, 'Sports2')"
+                  [checked]="form.get('hobbies')?.value?.includes('Sports2')">
+                <label class="form-check-label">Sports2</label>
+              </div>
+              <div class="form-check me-3">
+                <input 
+                  type="checkbox" 
+                  class="form-check-input" 
+                  (change)="onCheckboxGroupChange('hobbies', $event, 'Reading1')"
+                  [checked]="form.get('hobbies')?.value?.includes('Reading1')">
+                <label class="form-check-label">Reading1</label>
+              </div>
+              <div class="form-check me-3">
+                <input 
+                  type="checkbox" 
+                  class="form-check-input" 
+                  (change)="onCheckboxGroupChange('hobbies', $event, 'Traveling1')"
+                  [checked]="form.get('hobbies')?.value?.includes('Traveling1')">
+                <label class="form-check-label">Traveling1</label>
+              </div>
+              <div class="form-check me-3">
+                <input 
+                  type="checkbox" 
+                  class="form-check-input" 
+                  (change)="onCheckboxGroupChange('hobbies', $event, 'Cooking1')"
+                  [checked]="form.get('hobbies')?.value?.includes('Cooking1')">
+                <label class="form-check-label">Cooking1</label>
+              </div>
+              <div class="form-check me-3">
+                <input 
+                  type="checkbox" 
+                  class="form-check-input" 
+                  (change)="onCheckboxGroupChange('hobbies', $event, 'Sports1')"
+                  [checked]="form.get('hobbies')?.value?.includes('Sports1')">
+                <label class="form-check-label">Sports1</label>
+              </div>
+              <div class="form-check me-3">
+                <input 
+                  type="checkbox" 
+                  class="form-check-input" 
+                  (change)="onCheckboxGroupChange('hobbies', $event, 'Reading3')"
+                  [checked]="form.get('hobbies')?.value?.includes('Reading3')">
+                <label class="form-check-label">Reading3</label>
+              </div>
+              <div class="form-check me-3">
+                <input 
+                  type="checkbox" 
+                  class="form-check-input" 
+                  (change)="onCheckboxGroupChange('hobbies', $event, 'Traveling3')"
+                  [checked]="form.get('hobbies')?.value?.includes('Traveling3')">
+                <label class="form-check-label">Traveling3</label>
+              </div>
+              <div class="form-check me-3">
+                <input 
+                  type="checkbox" 
+                  class="form-check-input" 
+                  (change)="onCheckboxGroupChange('hobbies', $event, 'Cooking3')"
+                  [checked]="form.get('hobbies')?.value?.includes('Cooking3')">
+                <label class="form-check-label">Cooking3</label>
+              </div>
+              <div class="form-check me-3">
+                <input 
+                  type="checkbox" 
+                  class="form-check-input" 
+                  (change)="onCheckboxGroupChange('hobbies', $event, 'Sports3')"
+                  [checked]="form.get('hobbies')?.value?.includes('Sports3')">
+                <label class="form-check-label">Sports3</label>
+              </div>
+              <div class="form-check me-3">
+                <input 
+                  type="checkbox" 
+                  class="form-check-input" 
+                  (change)="onCheckboxGroupChange('hobbies', $event, 'Reading4')"
+                  [checked]="form.get('hobbies')?.value?.includes('Reading4')">
+                <label class="form-check-label">Reading4</label>
+              </div>
+              <div class="form-check me-3">
+                <input 
+                  type="checkbox" 
+                  class="form-check-input" 
+                  (change)="onCheckboxGroupChange('hobbies', $event, 'Traveling4')"
+                  [checked]="form.get('hobbies')?.value?.includes('Traveling4')">
+                <label class="form-check-label">Traveling4</label>
+              </div>
+              <div class="form-check me-3">
+                <input 
+                  type="checkbox" 
+                  class="form-check-input" 
+                  (change)="onCheckboxGroupChange('hobbies', $event, 'Cooking4')"
+                  [checked]="form.get('hobbies')?.value?.includes('Cooking4')">
+                <label class="form-check-label">Cooking4</label>
+              </div>
+              <div class="form-check me-3">
+                <input 
+                  type="checkbox" 
+                  class="form-check-input" 
+                  (change)="onCheckboxGroupChange('hobbies', $event, 'Sports4')"
+                  [checked]="form.get('hobbies')?.value?.includes('Sports4')">
+                <label class="form-check-label">Sports4</label>
+              </div>
+          </div>
+        </div>
+
+      <div class="col-md-6">
+        <label for="author" class="form-label">Author</label>
+        <select class="form-select" id="author" formControlName="author">
+          <option *ngFor="let opt of authorOptions" [ngValue]="opt.value">{{ opt.label }}</option>
+        </select>
       </div>
-    </div>
+
+      <div class="col-md-6 position-relative mb-3">
+        <label for="assignment_search" class="form-label">Assignment</label>
+        <input type="text"
+               class="form-control"
+               placeholder="Search Assignment"
+               (input)="onLookupSearch('assignment', $any($event.target).value)"
+               [value]="getSelectedLabel('assignment')" />
+        <ul class="list-group position-absolute w-100" *ngIf="(assignmentOptions?.length ?? 0) > 0">
+          <li
+            class="list-group-item"
+            *ngFor="let opt of assignmentOptions"
+            (click)="selectLookupOption('assignment', opt)">
+            {{ opt.label }}
+          </li>
+        </ul>
+      </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Status</label>
+          <div class="d-flex">
+            
+              <div class="form-check me-3">
+                <input type="radio" class="form-check-input" formControlName="status" value="draft">
+                <label class="form-check-label">draft</label>
+              </div>
+              <div class="form-check me-3">
+                <input type="radio" class="form-check-input" formControlName="status" value="published">
+                <label class="form-check-label">published</label>
+              </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 form-check mt-4">
+          <input type="checkbox" class="form-check-input" id="isFeatured" formControlName="isFeatured">
+          <label class="form-check-label" for="isFeatured">IsFeatured</label>
+        </div>
+
+        <div class="col-md-12">
+          <label for="coverImage" class="form-label">CoverImage</label>
+          <input type="file" class="form-control" id="coverImage" (change)="onFileSelected($event, 'coverImage')">
+        </div>
+
+      <div class="col-md-6">
+        <label for="views" class="form-label">Views</label>
+        <input type="number" class="form-control" id="views" formControlName="views">
+        <div *ngIf="form.get('views')?.invalid && form.get('views')?.touched" class="text-danger">
+          
+        </div>
+      </div>
+
+        <div class="col-md-6">
+          <label for="publishedDate" class="form-label">PublishedDate</label>
+          <input type="date" class="form-control" id="publishedDate" formControlName="publishedDate">
+        </div>
     <div class="col-12">
       <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">
         <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
         {{ item?._id ? 'Update' : 'Add' }} Posts
       </button>
       <button *ngIf="item" type="button" class="btn btn-secondary ms-2" (click)="resetForm()">Reset</button>
-      <button type="button" class="btn btn-secondary ms-2" (click)="cancel()">
-        Back
-      </button>
+      <button type="button" class="btn btn-secondary ms-2" (click)="cancel()">Back</button>
     </div>
   </form>
 </div>

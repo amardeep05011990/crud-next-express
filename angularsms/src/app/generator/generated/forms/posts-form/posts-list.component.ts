@@ -30,7 +30,17 @@ export class PostsListComponent implements OnInit, OnDestroy {
   searchTerm: string = '';
   filters: any = {
     title: '',
-    descriptions: ''
+    descriptions: '',
+    category: '',
+    tags: '',
+    hobbies: '',
+    author: '',
+    assignment: '',
+    status: '',
+    isFeatured: '',
+    coverImage: '',
+    views: '',
+    publishedDate: ''
   };
 
   globalMessage: { type: 'success' | 'error', text: string } | null = null;

@@ -15,8 +15,10 @@ export class DemouserViewComponent implements OnInit {
   @Output() closed = new EventEmitter<void>();   // ✅ add this
   item: any = null;
   loading: boolean = false;
+     // 👈 added conditionally
 
   constructor(private http: HttpClient) {}
+
 
   ngOnInit() {
     if (this.id) {

@@ -1,0 +1,39 @@
+<div class="container mt-4">
+
+  <!-- Success / Error Messages -->
+  <div *ngIf="successMessage" class="alert alert-success" role="alert">
+    {{ successMessage }}
+  </div>
+  <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+    {{ errorMessage }}
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="row g-3">
+    
+    <div class="col-md-12">
+      <label for="title" class="form-label">Title</label>
+      <input type="text" class="form-control" id="title" formControlName="title">
+      <div *ngIf="form.get('title')?.invalid && form.get('title')?.touched" class="text-danger">
+        <div *ngIf="form.get('title')?.errors?.['required']">Title is required.</div><div *ngIf="form.get('title')?.errors?.['minlength']">Minimum length is 3.</div><div *ngIf="form.get('title')?.errors?.['maxlength']">Maximum length is 50.</div>
+      </div>
+    </div>
+
+    <div class="col-md-12">
+      <label for="descriptions" class="form-label">Descriptions</label>
+      <input type="text" class="form-control" id="descriptions" formControlName="descriptions">
+      <div *ngIf="form.get('descriptions')?.invalid && form.get('descriptions')?.touched" class="text-danger">
+        
+      </div>
+    </div>
+    <div class="col-12">
+      <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">
+        <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
+        {{ item?._id ? 'Update' : 'Add' }} Posts
+      </button>
+      <button *ngIf="item" type="button" class="btn btn-secondary ms-2" (click)="resetForm()">Reset</button>
+      <button type="button" class="btn btn-secondary ms-2" (click)="cancel()">
+        Back
+      </button>
+    </div>
+  </form>
+</div>

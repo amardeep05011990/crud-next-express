@@ -2,9 +2,22 @@ const fs = require('fs');
 const path = require('path');
 const swaggerSpecObject = require("./swaggerspec");
 
+// import fs from "fs";
+// import path from "path";
+// import swaggerSpecObject from "./swaggerspec.js";
+
 function createMongooseSchema(fields) {
   return fields
-    .map(({ name, type }) => `  ${name}: { type: ${type} }`)
+    .map(({ name, type, form }) => 
+      { 
+        if(type == "ObjectId"){
+
+        return `  ${name}: { type: mongoose.Schema.Types.ObjectId, ref: "${form?.collection}"}`
+        }else{
+        return `  ${name}: { type: ${type} }`
+        }
+
+      })
     .join(',\n');
 }
 
@@ -190,6 +203,8 @@ router.post("/", ${col.name}Validator, validate, async (req, res) => {
   res.json(saved);
 });
 
+
+
 // READ ALL
 /**
  * @swagger
@@ -250,21 +265,62 @@ router.get("/", async (req, res) => {
     const { page = 1, limit = 10, search, ...filters } = req.query;
     const query = {};
 
-    // Add filters
-    Object.keys(filters).forEach((key) => {
-      query[key] = filters[key];
-    });
+    // 🔹 Add filters
+    // Object.keys(filters).forEach((key) => {
+    //   if (typeof filters[key] === "string") {
+    //     // Supports: ^start, end$, and contains (default)
+    //     query[key] = { $regex: filters[key], $options: "i" };
+    //   } else {
+    //     query[key] = filters[key];
+    //   }
+    // });
 
-    // Add search on all string fields
+    // 🔹 Add filters (lookup-aware)
+Object.keys(filters).forEach((key) => {
+  if ([${col.fields
+    .filter((f) => f.form?.input === "lookup")
+    .map((f) => `"${f.name}"`)
+    .join(", ")}].includes(key)) {
+    // Lookup fields: match ObjectId directly
+    query[key] = filters[key];
+  } else if (typeof filters[key] === "string") {
+    // String fields: regex search
+    query[key] = { $regex: filters[key], $options: "i" };
+  } else {
+    query[key] = filters[key];
+  }
+});
+
+
+    // 🔹 Add search across searchable fields
+    // if (search) {
+    //   query["$or"] = ${JSON.stringify(searchableFields)}.map((field) => ({
+    //     [field]: { $regex: search, $options: "i" }
+    //   }));
+    // }
     if (search) {
-      query["$or"] = ${JSON.stringify(searchableFields)}.map((field) => ({
+        query["$or"] = ${JSON.stringify(
+        col.fields.filter((f) => f.type !== "ObjectId" &&  f.type !== "Date").map((f) => f.name)
+      )}.map((field) => ({
         [field]: { $regex: search, $options: "i" }
       }));
     }
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const total = await ${col.name}.countDocuments(query);
-    const data = await ${col.name}.find(query).skip(skip).limit(parseInt(limit));
+
+    // 🔹 Base query
+    let mongooseQuery = ${col.name}.find(query).skip(skip).limit(parseInt(limit));
+
+    // 🔹 Auto-populate lookup fields
+    ${col.fields
+      .filter((f) => f.form?.input === "lookup")
+      .map(
+        (f) => `mongooseQuery = mongooseQuery.populate("${f.name}", "${f.form?.labelField || "name"}");`
+      )
+      .join("\n    ")}
+
+    const data = await mongooseQuery;
 
     res.json({
       data,
@@ -296,9 +352,33 @@ router.get("/", async (req, res) => {
  *       200:
  *         description: The ${col.name} data
  */
+// router.get("/:id", async (req, res) => {
+//   const item = await ${col.name}.findById(req.params.id);
+//   res.json(item);
+// });
 router.get("/:id", async (req, res) => {
-  const item = await ${col.name}.findById(req.params.id);
-  res.json(item);
+  try {
+    let mongooseQuery = ${col.name}.findById(req.params.id);
+
+    // 🔹 Auto-populate lookup fields (only if any exist in schema.json)
+    ${col.fields
+      .filter((f) => f.form?.input === "lookup")
+      .map(
+        (f) =>
+          `mongooseQuery = mongooseQuery.populate("${f.name}", "${f.form?.labelField || "name"}");`
+      )
+      .join("\n    ")}
+
+    const item = await mongooseQuery;
+
+    if (!item) {
+      return res.status(404).json({ message: "${col.name} not found" });
+    }
+
+    res.json(item);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // UPDATE
@@ -617,8 +697,37 @@ function generateBackendFiles(schema) {
 
 // Load your exported JSON
 const schema = require("./schema.json"); // 👈 your generated file
+// import schema from "./schema.json";
 
 generateBackendFiles(schema);
+
+
+// Remove this line, because now schema will come from the API request
+// const schema = require("./schema.json");
+
+// // Export the function to generate files
+// module.exports.generateBackendFiles = (schema) => {
+//   const basePath = path.join(__dirname, 'backendapp');
+//   const { collections, relations } = schema;
+
+//   const files = [
+//     ...generateModels(collections, relations),
+//     ...generateValidators(collections),
+//     ...generateRoutes(collections),
+//     generateServerFile(collections),
+//     validateMiddleware,
+//     swaggerSpecFile,
+//   ];
+
+//   files.forEach(({ fileName, content, folder }) => {
+//     const dir = path.join(basePath, folder);
+//     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+//     fs.writeFileSync(path.join(dir, fileName), content, 'utf-8');
+//     console.log('✅', folder || '.', '/', fileName);
+//   });
+
+//   return { success: true, message: 'Backend files generated successfully.' };
+// };
 
 
 // Note-- some important points

@@ -133,7 +133,7 @@ const onEdgeClick=(event, edge) => {
   };
 
 
-const generateBackend = (nodes, edges) => {
+const generateBackend = async (nodes, edges) => {
 //   const collections = nodes.map((node) => ({
 //     name: node.data.label.replace(/\s+/g, ''),
 //     id: node.id,
@@ -169,11 +169,35 @@ const collections = nodes.map((node) => ({
   saveSchemaToLocalStorage(output);
 
   console.log("output", output)
-  const blob = new Blob([JSON.stringify(output, null, 2)], {
-    type: 'application/json',
-  });
 
-  saveAs(blob, 'schema.json');
+    console.log("Generated Schema", output);
+
+
+  try {
+    const response = await fetch('http://localhost:4000/api/generate-backend', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(output),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('Backend generation success:', data);
+    alert('Backend generation triggered successfully');
+  } catch (error) {
+    console.error('Backend generation failed:', error);
+    alert('Failed to generate backend. See console for details.');
+  }
+  // const blob = new Blob([JSON.stringify(output, null, 2)], {
+  //   type: 'application/json',
+  // });
+
+  // saveAs(blob, 'schema.json');
 };
 
 const handleUploadSchema = (e) => {

@@ -42,6 +42,16 @@
         <tr>
           <th>Title</th>
 <th>Descriptions</th>
+<th>Category</th>
+<th>Tags</th>
+<th>Hobbies</th>
+<th>Author</th>
+<th>Assignment</th>
+<th>Status</th>
+<th>IsFeatured</th>
+<th>CoverImage</th>
+<th>Views</th>
+<th>PublishedDate</th>
           <th>Actions</th>
         </tr>
         <!-- Filters row (always visible, even if no results) -->
@@ -54,6 +64,46 @@
               [(ngModel)]="filters.descriptions" 
               (ngModelChange)="applyFilters()" 
               placeholder="Filter..." /></th>
+<th><input type="text" class="form-control form-control-sm" 
+              [(ngModel)]="filters.category" 
+              (ngModelChange)="applyFilters()" 
+              placeholder="Filter..." /></th>
+<th><input type="text" class="form-control form-control-sm" 
+              [(ngModel)]="filters.tags" 
+              (ngModelChange)="applyFilters()" 
+              placeholder="Filter..." /></th>
+<th><input type="text" class="form-control form-control-sm" 
+              [(ngModel)]="filters.hobbies" 
+              (ngModelChange)="applyFilters()" 
+              placeholder="Filter..." /></th>
+<th><input type="text" class="form-control form-control-sm" 
+              [(ngModel)]="filters.author" 
+              (ngModelChange)="applyFilters()" 
+              placeholder="Filter..." /></th>
+<th><input type="text" class="form-control form-control-sm" 
+              [(ngModel)]="filters.assignment" 
+              (ngModelChange)="applyFilters()" 
+              placeholder="Filter..." /></th>
+<th><input type="text" class="form-control form-control-sm" 
+              [(ngModel)]="filters.status" 
+              (ngModelChange)="applyFilters()" 
+              placeholder="Filter..." /></th>
+<th><input type="text" class="form-control form-control-sm" 
+              [(ngModel)]="filters.isFeatured" 
+              (ngModelChange)="applyFilters()" 
+              placeholder="Filter..." /></th>
+<th><input type="text" class="form-control form-control-sm" 
+              [(ngModel)]="filters.coverImage" 
+              (ngModelChange)="applyFilters()" 
+              placeholder="Filter..." /></th>
+<th><input type="text" class="form-control form-control-sm" 
+              [(ngModel)]="filters.views" 
+              (ngModelChange)="applyFilters()" 
+              placeholder="Filter..." /></th>
+<th><input type="text" class="form-control form-control-sm" 
+              [(ngModel)]="filters.publishedDate" 
+              (ngModelChange)="applyFilters()" 
+              placeholder="Filter..." /></th>
           <th></th>
         </tr>
       </thead>
@@ -61,6 +111,16 @@
         <tr *ngFor="let item of items; trackBy: trackById">
           <td>{{ item.title }}</td>
 <td>{{ item.descriptions }}</td>
+<td>{{ item.category }}</td>
+<td>{{ item.tags }}</td>
+<td>{{ item.hobbies }}</td>
+<td>{{ item.author?.name || item.author }}</td>
+<td>{{ item.assignment?.title || item.assignment }}</td>
+<td>{{ item.status }}</td>
+<td>{{ item.isFeatured }}</td>
+<td>{{ item.coverImage }}</td>
+<td>{{ item.views }}</td>
+<td>{{ item.publishedDate }}</td>
           <td>
             <button class="btn btn-sm btn-info me-2" (click)="editItem(item)">Edit</button>
             <button class="btn btn-sm btn-secondary me-2" (click)="viewItem(item)">View</button>
@@ -68,7 +128,7 @@
           </td>
         </tr>
         <tr *ngIf="!loading && items.length === 0">
-          <td colspan="3" class="text-center text-muted">
+          <td colspan="13" class="text-center text-muted">
             No results found.
           </td>
         </tr>

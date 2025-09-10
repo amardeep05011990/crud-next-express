@@ -1,0 +1,87 @@
+<div class="container mt-4">
+  <!-- Global Success/Error Messages -->
+  <div *ngIf="globalMessage" 
+       class="alert" 
+       [ngClass]="{'alert-success': globalMessage.type==='success', 'alert-danger': globalMessage.type==='error'}" 
+       role="alert">
+    {{ globalMessage.text }}
+  </div>
+
+  <!-- Show Form when editing or adding -->
+  <app-posts-form 
+    *ngIf="selectedItem" 
+    [item]="selectedItem" 
+    (formSaved)="onFormSaved()" 
+    (message)="onMessage($event)"
+    (formCancelled)="onFormCancelled()">
+  </app-posts-form>
+
+  <!-- Show View Details -->
+  <app-posts-view
+    *ngIf="selectedViewId"
+    [id]="selectedViewId"
+    (closed)="closeView()">
+  </app-posts-view>
+
+  <!-- Show List when not editing or viewing -->
+  <div *ngIf="!selectedItem && !selectedViewId">
+    <div class="d-flex justify-content-between mb-3">
+      <!-- Search -->
+      <input type="text" class="form-control w-50" placeholder="Search..." 
+             [(ngModel)]="searchTerm" (ngModelChange)="onSearch()" />
+      <!-- Add Button -->
+      <button class="btn btn-primary" (click)="addItem()">+ Add New</button>
+    </div>
+
+    <div *ngIf="loading" class="text-center my-3">
+      <div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>
+    </div>
+
+    <table class="table table-striped mt-3">
+      <thead>
+        <tr>
+          <th>Title</th>
+<th>Descriptions</th>
+          <th>Actions</th>
+        </tr>
+        <!-- Filters row (always visible, even if no results) -->
+        <tr>
+          <th><input type="text" class="form-control form-control-sm" 
+              [(ngModel)]="filters.title" 
+              (ngModelChange)="applyFilters()" 
+              placeholder="Filter..." /></th>
+<th><input type="text" class="form-control form-control-sm" 
+              [(ngModel)]="filters.descriptions" 
+              (ngModelChange)="applyFilters()" 
+              placeholder="Filter..." /></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of items; trackBy: trackById">
+          <td>{{ item.title }}</td>
+<td>{{ item.descriptions }}</td>
+          <td>
+            <button class="btn btn-sm btn-info me-2" (click)="editItem(item)">Edit</button>
+            <button class="btn btn-sm btn-secondary me-2" (click)="viewItem(item)">View</button>
+            <button class="btn btn-sm btn-danger" (click)="deleteItem(item._id)">Delete</button>
+          </td>
+        </tr>
+        <tr *ngIf="!loading && items.length === 0">
+          <td colspan="3" class="text-center text-muted">
+            No results found.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <app-pagination
+      [page]="page"
+      [totalPages]="totalPages"
+      [total]="total"
+      [mode]="'google'"
+      (pageChange)="changePage($event)">
+    </app-pagination>
+  </div>
+</div>

@@ -90,7 +90,7 @@
 
 // export default CollectionNode;
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Handle, Position } from "reactflow";
 
 const CollectionNode = ({ data, id }) => {
@@ -100,10 +100,23 @@ const CollectionNode = ({ data, id }) => {
   const [newField, setNewField] = useState({ name: "", type: "String" });
 const validationOptions = ["required", "min", "max", "minLength", "maxLength"];
 
+
+// Mock API for fetching available collections
+const mockFetchCollections = () =>
+  new Promise((resolve) =>
+    setTimeout(() => resolve(["users", "assignments", "products"]), 500)
+  );
   const updateParent = (updatedFields) => {
     setFields(updatedFields);
     data.fields = updatedFields;
   };
+
+  const [collections, setCollections] = useState([]);
+
+useEffect(() => {
+  mockFetchCollections().then((list) => setCollections(list));
+}, []);
+
 
   const addField = () => {
     if (newField.name) {
@@ -158,7 +171,20 @@ const validationOptions = ["required", "min", "max", "minLength", "maxLength"];
             />
             <select
               value={f.type}
-              onChange={(e) => updateField(i, "type", e.target.value)}
+              onChange={(e) => {
+                updateField(i, "type", e.target.value);
+                if (e.target.value === "ObjectId") {
+                  updateField(i, "form", {
+                    input: "lookup",
+                    collection: collections[0] || "",
+                    labelField: "name",
+                    valueField: "_id",
+                    autocomplete: false,
+                    limit: 10,
+                    grid: 6,
+                  });
+                }
+              }}
               style={{ width: "35%", marginLeft: "2%" }}
             >
               <option value="String">String</option>
@@ -167,7 +193,9 @@ const validationOptions = ["required", "min", "max", "minLength", "maxLength"];
               <option value="Date">date</option>
               <option value="Object">object</option>
               <option value="Array">array</option>
+              <option value="ObjectId">ObjectId (lookup)</option>
             </select>
+
             <button onClick={() => deleteField(i)} style={{ marginLeft: 4 }}>🗑️</button>
 
 
@@ -299,6 +327,54 @@ const validationOptions = ["required", "min", "max", "minLength", "maxLength"];
   </div>
 </details>
 
+{f.type === "ObjectId" && (
+  <div style={{ marginTop: 10, padding: "6px", border: "1px dashed #aaa" }}>
+    <label>Collection:</label>
+    <select
+      value={f.form?.collection || ""}
+      onChange={(e) =>
+        updateField(i, "form", { ...f.form, collection: e.target.value })
+      }
+      style={{ width: "100%", marginBottom: 6 }}
+    >
+      <option value="">-- Select Collection --</option>
+      {collections.map((col) => (
+        <option key={col} value={col}>
+          {col}
+        </option>
+      ))}
+    </select>
+
+    <label>Label Field:</label>
+    <input
+      type="text"
+      value={f.form?.labelField || "name"}
+      onChange={(e) =>
+        updateField(i, "form", { ...f.form, labelField: e.target.value })
+      }
+      style={{ width: "100%", marginBottom: 6 }}
+    />
+
+    <label>Value Field:</label>
+    <input
+      type="text"
+      value={f.form?.valueField || "_id"}
+      onChange={(e) =>
+        updateField(i, "form", { ...f.form, valueField: e.target.value })
+      }
+      style={{ width: "100%", marginBottom: 6 }}
+    />
+
+    <label>Autocomplete:</label>
+    <input
+      type="checkbox"
+      checked={f.form?.autocomplete || false}
+      onChange={(e) =>
+        updateField(i, "form", { ...f.form, autocomplete: e.target.checked })
+      }
+    />
+  </div>
+)}
 
 
 
@@ -324,6 +400,7 @@ const validationOptions = ["required", "min", "max", "minLength", "maxLength"];
               <option value="Date">date</option>
               <option value="Object">object</option>
               <option value="Array">array</option>
+              <option value="ObjectId">ObjectId (lookup)</option>
         </select>
         <button onClick={addField}>➕</button>
       </div>

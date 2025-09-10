@@ -1,0 +1,69 @@
+<div class="container mt-4">
+
+  <!-- Success / Error Messages -->
+  <div *ngIf="successMessage" class="alert alert-success" role="alert">
+    {{ successMessage }}
+  </div>
+  <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+    {{ errorMessage }}
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="row g-3">
+    
+      <div class="col-md-6">
+        <label for="city" class="form-label">City</label>
+        <select class="form-select" id="city" formControlName="city">
+          <option *ngFor="let opt of cityOptions" [value]="opt">{{ opt }}</option>
+        </select>
+        <div *ngIf="form.get('city')?.invalid && form.get('city')?.touched" class="text-danger">
+          
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">Gender</label>
+        <div class="d-flex">
+          
+            <div class="form-check me-3">
+              <input type="radio" class="form-check-input" formControlName="gender" value="male">
+              <label class="form-check-label">male</label>
+            </div>
+          
+            <div class="form-check me-3">
+              <input type="radio" class="form-check-input" formControlName="gender" value="female">
+              <label class="form-check-label">female</label>
+            </div>
+          
+        </div>
+        <div *ngIf="form.get('gender')?.invalid && form.get('gender')?.touched" class="text-danger">
+          <div *ngIf="form.get('gender')?.errors?.['required']">Gender is required.</div><div *ngIf="form.get('gender')?.errors?.['minlength']">Minimum length is 3.</div><div *ngIf="form.get('gender')?.errors?.['maxlength']">Maximum length is 30.</div>
+        </div>
+      </div>
+
+    <div class="col-md-12">
+      <label for="title" class="form-label">Title</label>
+      <input type="multiselect" class="form-control" id="title" formControlName="title">
+      <div *ngIf="form.get('title')?.invalid && form.get('title')?.touched" class="text-danger">
+        <div *ngIf="form.get('title')?.errors?.['required']">Title is required.</div>
+      </div>
+    </div>
+
+    <div class="col-md-12">
+      <label for="asdf123333" class="form-label">Asdf123333</label>
+      <input type="text" class="form-control" id="asdf123333" formControlName="asdf123333">
+      <div *ngIf="form.get('asdf123333')?.invalid && form.get('asdf123333')?.touched" class="text-danger">
+        
+      </div>
+    </div>
+    <div class="col-12">
+      <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">
+        <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
+        {{ item?._id ? 'Update' : 'Add' }} Students
+      </button>
+      <button *ngIf="item" type="button" class="btn btn-secondary ms-2" (click)="resetForm()">Reset</button>
+      <button type="button" class="btn btn-secondary ms-2" (click)="cancel()">
+        Back
+      </button>
+    </div>
+  </form>
+</div>

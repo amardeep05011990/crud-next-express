@@ -1,37 +1,51 @@
 <div class="container mt-4">
   <h3>Students Details</h3>
 
-  <button class="btn btn-secondary mb-3" (click)="closeView()">Back</button> <!-- 👈 -->
+  <button class="btn btn-secondary mb-3" (click)="closeView()">Back</button>
 
   <div *ngIf="loading" class="text-center my-3">
     <div class="spinner-border" role="status"></div>
   </div>
 
   <div *ngIf="!loading && item">
+
+    <!-- 🔹 Basic Info -->
+    <h5 class="mt-3">Basic Info</h5>
     <table class="table table-bordered">
       <tbody>
         
         <tr>
           <th style="width:200px">City</th>
-          <td>{{ item.city }}</td>
+          <td>
+            {{ item.city }}
+          </td>
         </tr>
 
         <tr>
           <th style="width:200px">Gender</th>
-          <td>{{ item.gender }}</td>
+          <td>
+            {{ item.gender }}
+          </td>
         </tr>
 
         <tr>
           <th style="width:200px">Title</th>
-          <td>{{ item.title }}</td>
+          <td>
+            {{ item.title }}
+          </td>
         </tr>
 
         <tr>
           <th style="width:200px">Asdf123333</th>
-          <td>{{ item.asdf123333 }}</td>
+          <td>
+            {{ item.asdf123333 }}
+          </td>
         </tr>
       </tbody>
     </table>
+
+    <!-- 🔹 Lookup Sections -->
+    
   </div>
 
   <div *ngIf="!loading && !item" class="alert alert-warning">

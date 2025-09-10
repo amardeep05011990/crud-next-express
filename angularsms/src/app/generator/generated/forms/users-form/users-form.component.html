@@ -1,47 +1,39 @@
 <div class="container mt-4">
-
-  <!-- Success / Error Messages -->
-  <div *ngIf="successMessage" class="alert alert-success" role="alert">
-    {{ successMessage }}
-  </div>
-  <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
-    {{ errorMessage }}
-  </div>
+  <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+  <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="row g-3">
     
-    <div class="col-md-12">
-      <label for="name" class="form-label">Name</label>
-      <input type="text" class="form-control" id="name" formControlName="name">
-      <div *ngIf="form.get('name')?.invalid && form.get('name')?.touched" class="text-danger">
-        <div *ngIf="form.get('name')?.errors?.['required']">Name is required.</div>
+      <div class="col-md-12">
+        <label for="name" class="form-label">Name</label>
+        <input type="text" class="form-control" id="name" formControlName="name">
+        <div *ngIf="form.get('name')?.invalid && form.get('name')?.touched" class="text-danger">
+          <div *ngIf="form.get('name')?.errors?.['required']">Name is required.</div>
+        </div>
       </div>
-    </div>
 
-    <div class="col-md-12">
-      <label for="email" class="form-label">Email</label>
-      <input type="text" class="form-control" id="email" formControlName="email">
-      <div *ngIf="form.get('email')?.invalid && form.get('email')?.touched" class="text-danger">
-        <div *ngIf="form.get('email')?.errors?.['required']">Email is required.</div>
+      <div class="col-md-12">
+        <label for="email" class="form-label">Email</label>
+        <input type="text" class="form-control" id="email" formControlName="email">
+        <div *ngIf="form.get('email')?.invalid && form.get('email')?.touched" class="text-danger">
+          <div *ngIf="form.get('email')?.errors?.['required']">Email is required.</div>
+        </div>
       </div>
-    </div>
 
-    <div class="col-md-12">
-      <label for="gage" class="form-label">Gage</label>
-      <input type="text" class="form-control" id="gage" formControlName="gage">
-      <div *ngIf="form.get('gage')?.invalid && form.get('gage')?.touched" class="text-danger">
-        
+      <div class="col-md-12">
+        <label for="gage" class="form-label">Gage</label>
+        <input type="text" class="form-control" id="gage" formControlName="gage">
+        <div *ngIf="form.get('gage')?.invalid && form.get('gage')?.touched" class="text-danger">
+          
+        </div>
       </div>
-    </div>
     <div class="col-12">
       <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">
         <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
         {{ item?._id ? 'Update' : 'Add' }} Users
       </button>
       <button *ngIf="item" type="button" class="btn btn-secondary ms-2" (click)="resetForm()">Reset</button>
-      <button type="button" class="btn btn-secondary ms-2" (click)="cancel()">
-        Back
-      </button>
+      <button type="button" class="btn btn-secondary ms-2" (click)="cancel()">Back</button>
     </div>
   </form>
 </div>

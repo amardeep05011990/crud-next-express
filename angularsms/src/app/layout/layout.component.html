@@ -25,8 +25,8 @@
             <i class="bi bi-people me-2"></i> Users
           </a>
           <ul id="userMenu" class="collapse ps-4">
-            <li><a class="nav-link text-white" routerLink="/users" (click)="closeSidebar()">User List</a></li>
-            <li><a class="nav-link text-white" routerLink="/users/add" (click)="closeSidebar()">Add User</a></li>
+            <li><a class="nav-link text-white" routerLink="/admin/allusers" (click)="closeSidebar()">User List</a></li>
+            <li><a class="nav-link text-white" routerLink="/admin/allusers/add" (click)="closeSidebar()">Add User</a></li>
           </ul>
         </li>
         <li>
@@ -36,6 +36,15 @@
           <ul id="postsMenu" class="collapse ps-4">
             <li><a class="nav-link text-white" routerLink="/admin/posts" >Post List</a></li>
             <li><a class="nav-link text-white" routerLink="/admin/posts/add" >Add Post</a></li>
+          </ul>
+        </li>
+        <li>
+          <a class="nav-link text-white" data-bs-toggle="collapse" href="#studentsMenu">
+            <i class="bi bi-people me-2"></i> Students
+          </a>
+          <ul id="studentsMenu" class="collapse ps-4">
+            <li><a class="nav-link text-white" routerLink="/admin/students" >Students List</a></li>
+            <li><a class="nav-link text-white" routerLink="/admin/students/add" >Add Students</a></li>
           </ul>
         </li>
         <li>

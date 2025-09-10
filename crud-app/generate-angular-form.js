@@ -487,7 +487,14 @@ const listHtml = `
       </thead>
       <tbody>
         <tr *ngFor="let item of items; trackBy: trackById">
-          ${collection.fields.map((f) => `<td>{{ item.${f.name} }}</td>`).join("\n")}
+          ${collection.fields.map((f) => {
+          if (f.form?.input === "lookup") {
+            const labelField = f.form?.labelField || "name";
+            return `<td>{{ item.${f.name}?.${labelField} || item.${f.name} }}</td>`;
+          } else {
+            return `<td>{{ item.${f.name} }}</td>`;
+          }
+        }).join("\n")}
           <td>
             <button class="btn btn-sm btn-info me-2" (click)="editItem(item)">Edit</button>
             <button class="btn btn-sm btn-secondary me-2" (click)="viewItem(item)">View</button>
@@ -521,6 +528,9 @@ const listHtml = `
   fs.writeFileSync(path.join(formDir, `${kebabName}-list.component.ts`), listTs.trim(), "utf-8");
   fs.writeFileSync(path.join(formDir, `${kebabName}-list.component.html`), listHtml.trim(), "utf-8");
 
+
+const hasLookup = collection.fields.some(f => f.form?.input === "lookup");
+
 const viewTs = `
 // ========= VIEW COMPONENT =========
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
@@ -539,8 +549,10 @@ export class ${compName}ViewComponent implements OnInit {
   @Output() closed = new EventEmitter<void>();   // ✅ add this
   item: any = null;
   loading: boolean = false;
+  ${hasLookup ? "objectKeys = Object.keys;" : ""}   // 👈 added conditionally
 
   constructor(private http: HttpClient) {}
+
 
   ngOnInit() {
     if (this.id) {
@@ -567,38 +579,165 @@ export class ${compName}ViewComponent implements OnInit {
 `;
 
 
+// const viewHtml = `
+// <div class="container mt-4">
+//   <h3>${compName} Details</h3>
+
+//   <button class="btn btn-secondary mb-3" (click)="closeView()">Back</button> <!-- 👈 -->
+
+//   <div *ngIf="loading" class="text-center my-3">
+//     <div class="spinner-border" role="status"></div>
+//   </div>
+
+//   <div *ngIf="!loading && item">
+//     <table class="table table-bordered">
+//       <tbody>
+//         ${collection.fields
+//           .map(
+//             (f) => `
+//         <tr>
+//           <th style="width:200px">${capitalize(f.name)}</th>
+//           <td>{{ item.${f.name} }}</td>
+//         </tr>`
+//           )
+//           .join("\n")}
+//       </tbody>
+//     </table>
+//   </div>
+
+//   <div *ngIf="!loading && !item" class="alert alert-warning">
+//     Record not found.
+//   </div>
+// </div>
+
+// `;
+
+// const viewHtml = `
+// <div class="container mt-4">
+//   <h3>${compName} Details</h3>
+
+//   <button class="btn btn-secondary mb-3" (click)="closeView()">Back</button>
+
+//   <div *ngIf="loading" class="text-center my-3">
+//     <div class="spinner-border" role="status"></div>
+//   </div>
+
+//   <div *ngIf="!loading && item">
+
+//     <!-- 🔹 Basic Info -->
+//     <h5 class="mt-3">Basic Info</h5>
+//     <table class="table table-bordered">
+//       <tbody>
+//         ${collection.fields
+//           .filter(f => !["lookup"].includes(f.form?.input)) // exclude lookup fields
+//           .map(
+//             (f) => `
+//         <tr>
+//           <th style="width:200px">${capitalize(f.name)}</th>
+//           <td>{{ item.${f.name} }}</td>
+//         </tr>`
+//           )
+//           .join("\n")}
+//       </tbody>
+//     </table>
+
+//     <!-- 🔹 Lookup Fields -->
+//     <h5 class="mt-3">Related Info</h5>
+//     <table class="table table-bordered">
+//       <tbody>
+//         ${collection.fields
+//           .filter(f => f.form?.input === "lookup")
+//           .map(
+//             (f) => `
+//         <tr>
+//           <th style="width:200px">${capitalize(f.name)}</th>
+//           <td>
+//             <div *ngIf="item.${f.name}">
+//               <!-- If populated, show labelField -->
+//               {{ item.${f.name}.${f.form?.labelField || "name"} }}
+//             </div>
+//             <div *ngIf="!item.${f.name}">-</div>
+//           </td>
+//         </tr>`
+//           )
+//           .join("\n")}
+//       </tbody>
+//     </table>
+
+//   </div>
+
+//   <div *ngIf="!loading && !item" class="alert alert-warning">
+//     Record not found.
+//   </div>
+// </div>
+// `;
+
 const viewHtml = `
 <div class="container mt-4">
   <h3>${compName} Details</h3>
 
-  <button class="btn btn-secondary mb-3" (click)="closeView()">Back</button> <!-- 👈 -->
+  <button class="btn btn-secondary mb-3" (click)="closeView()">Back</button>
 
   <div *ngIf="loading" class="text-center my-3">
     <div class="spinner-border" role="status"></div>
   </div>
 
   <div *ngIf="!loading && item">
+
+    <!-- 🔹 Basic Info -->
+    <h5 class="mt-3">Basic Info</h5>
     <table class="table table-bordered">
       <tbody>
         ${collection.fields
+          .filter(f => f.form?.input !== "lookup") // exclude lookup fields
           .map(
             (f) => `
         <tr>
           <th style="width:200px">${capitalize(f.name)}</th>
-          <td>{{ item.${f.name} }}</td>
+          <td>
+            ${
+              f.type === "Array"
+                ? `{{ item.${f.name}?.join(", ") }}`
+                : `{{ item.${f.name} }}`
+            }
+          </td>
         </tr>`
           )
           .join("\n")}
       </tbody>
     </table>
+
+    <!-- 🔹 Lookup Sections -->
+    ${collection.fields
+      .filter(f => f.form?.input === "lookup") // only lookup fields
+      .map(
+        (f) => `
+    <div *ngIf="item.${f.name}">
+      <h5 class="mt-3">${capitalize(f.name)} Info</h5>
+      <table class="table table-bordered">
+        <tbody>
+          <tr *ngFor="let key of objectKeys(item.${f.name})">
+            <!-- <th style="width:200px">{{ key | titlecase }}</th>
+            <td>{{ item.${f.name}[key] }}</td> -->
+            <ng-container *ngIf="key !== '_id'">
+              <th style="width:200px">{{ key }}</th>
+              <td>{{ item.${f.name}[key] }}</td>
+            </ng-container>
+          </tr>
+        </tbody>
+      </table>
+    </div>`
+      )
+      .join("\n")}
   </div>
 
   <div *ngIf="!loading && !item" class="alert alert-warning">
     Record not found.
   </div>
 </div>
-
 `;
+
+
 
   fs.writeFileSync(path.join(formDir, `${kebabName}-view.component.ts`), viewTs.trim(), "utf-8");
   fs.writeFileSync(path.join(formDir, `${kebabName}-view.component.html`), viewHtml.trim(), "utf-8");

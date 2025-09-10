@@ -121,15 +121,79 @@
           "name": "title",
           "type": "String",
           "validation": {
-            "required": {
-              "value": true,
-              "message": ""
-            }
+            "required": { "value": true, "message": "" }
+          },
+          "form": {
+            "input": "text",
+            "grid": 12
           }
         },
         {
           "name": "descriptions",
-          "type": "String"
+          "type": "String",
+          "form": {
+            "input": "textarea",
+            "grid": 12
+          }
+        },
+        {
+          "name": "category",
+          "type": "String",
+          "form": {
+            "input": "select",
+            "options": ["Tech", "Life", "Business"],
+            "grid": 6
+          }
+        },
+        {
+          "name": "tags",
+          "type": "Array",
+          "form": {
+            "input": "multiselect",
+            "options": ["Angular", "Node.js", "MongoDB", "Express"],
+            "grid": 6
+          }
+        },
+        {
+          "name": "status",
+          "type": "String",
+          "form": {
+            "input": "radio",
+            "options": ["draft", "published"],
+            "grid": 6
+          }
+        },
+        {
+          "name": "isFeatured",
+          "type": "Boolean",
+          "form": {
+            "input": "checkbox",
+            "grid": 6
+          }
+        },
+        {
+          "name": "coverImage",
+          "type": "String",
+          "form": {
+            "input": "file",
+            "grid": 12
+          }
+        },
+        {
+          "name": "views",
+          "type": "Number",
+          "form": {
+            "input": "number",
+            "grid": 6
+          }
+        },
+        {
+          "name": "publishedDate",
+          "type": "Date",
+          "form": {
+            "input": "date",
+            "grid": 6
+          }
         }
       ]
     },

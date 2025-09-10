@@ -21,19 +21,49 @@ export class DemouserFormComponent implements OnInit {
   successMessage: string = '';
   errorMessage: string = '';
   isSubmitting: boolean = false;
+  searchTexts: { [key: string]: string } = {};
 
-  
+ 
+
+  [key: string]: any; // for dynamic lookup arrays
 
   constructor(private fb: FormBuilder, private http: HttpClient) {}
 
+
+
   ngOnInit() {
-this.form = this.fb.group({
-  name: ['', []]
-});
+
+    
+
+    this.form = this.fb.group({
+      name: ['', []]
+    });
 
     if (this.item) {
       this.form.patchValue(this.item);
+
+      // preload lookup values on edit
+      
     }
+  }
+
+  // File upload handler
+  onFileSelected(event: Event, controlName: string) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.form.patchValue({ [controlName]: input.files[0] });
+    }
+  }
+
+  onCheckboxGroupChange(controlName: string, event: any, value: string) {
+    const arr: string[] = this.form.get(controlName)?.value || [];
+    if (event.target.checked) {
+      if (!arr.includes(value)) arr.push(value);
+    } else {
+      const idx = arr.indexOf(value);
+      if (idx >= 0) arr.splice(idx, 1);
+    }
+    this.form.get(controlName)?.setValue(arr);
   }
 
   onSubmit() {
@@ -47,36 +77,28 @@ this.form = this.fb.group({
     const data = this.form.value;
 
     if (this.item?._id) {
-      // Update
       this.http.put(`${environment.apiBaseUrl}/api/demouser/${this.item._id}`, data).subscribe({
         next: () => {
           this.successMessage = 'Demouser updated successfully!';
-          this.errorMessage = '';
           this.message.emit({ type: 'success', text: this.successMessage });
           this.formSaved.emit();
           this.resetForm();
         },
         error: () => {
           this.errorMessage = 'Failed to update Demouser.';
-          this.successMessage = '';
-          // this.message.emit({ type: 'error', text: this.errorMessage });
           this.isSubmitting = false;
         }
       });
     } else {
-      // Create
       this.http.post(`${environment.apiBaseUrl}/api/demouser`, data).subscribe({
         next: () => {
           this.successMessage = 'Demouser added successfully!';
-          this.errorMessage = '';
           this.message.emit({ type: 'success', text: this.successMessage });
           this.formSaved.emit();
           this.resetForm();
         },
         error: () => {
           this.errorMessage = 'Failed to add Demouser.';
-          this.successMessage = '';
-          this.message.emit({ type: 'error', text: this.errorMessage });
           this.isSubmitting = false;
         }
       });

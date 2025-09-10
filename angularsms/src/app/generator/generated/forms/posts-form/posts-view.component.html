@@ -1,27 +1,124 @@
 <div class="container mt-4">
   <h3>Posts Details</h3>
 
-  <button class="btn btn-secondary mb-3" (click)="closeView()">Back</button> <!-- 👈 -->
+  <button class="btn btn-secondary mb-3" (click)="closeView()">Back</button>
 
   <div *ngIf="loading" class="text-center my-3">
     <div class="spinner-border" role="status"></div>
   </div>
 
   <div *ngIf="!loading && item">
+
+    <!-- 🔹 Basic Info -->
+    <h5 class="mt-3">Basic Info</h5>
     <table class="table table-bordered">
       <tbody>
         
         <tr>
           <th style="width:200px">Title</th>
-          <td>{{ item.title }}</td>
+          <td>
+            {{ item.title }}
+          </td>
         </tr>
 
         <tr>
           <th style="width:200px">Descriptions</th>
-          <td>{{ item.descriptions }}</td>
+          <td>
+            {{ item.descriptions }}
+          </td>
+        </tr>
+
+        <tr>
+          <th style="width:200px">Category</th>
+          <td>
+            {{ item.category }}
+          </td>
+        </tr>
+
+        <tr>
+          <th style="width:200px">Tags</th>
+          <td>
+            {{ item.tags?.join(", ") }}
+          </td>
+        </tr>
+
+        <tr>
+          <th style="width:200px">Hobbies</th>
+          <td>
+            {{ item.hobbies?.join(", ") }}
+          </td>
+        </tr>
+
+        <tr>
+          <th style="width:200px">Status</th>
+          <td>
+            {{ item.status }}
+          </td>
+        </tr>
+
+        <tr>
+          <th style="width:200px">IsFeatured</th>
+          <td>
+            {{ item.isFeatured }}
+          </td>
+        </tr>
+
+        <tr>
+          <th style="width:200px">CoverImage</th>
+          <td>
+            {{ item.coverImage }}
+          </td>
+        </tr>
+
+        <tr>
+          <th style="width:200px">Views</th>
+          <td>
+            {{ item.views }}
+          </td>
+        </tr>
+
+        <tr>
+          <th style="width:200px">PublishedDate</th>
+          <td>
+            {{ item.publishedDate }}
+          </td>
         </tr>
       </tbody>
     </table>
+
+    <!-- 🔹 Lookup Sections -->
+    
+    <div *ngIf="item.author">
+      <h5 class="mt-3">Author Info</h5>
+      <table class="table table-bordered">
+        <tbody>
+          <tr *ngFor="let key of objectKeys(item.author)">
+            <!-- <th style="width:200px">{{ key | titlecase }}</th>
+            <td>{{ item.author[key] }}</td> -->
+            <ng-container *ngIf="key !== '_id'">
+              <th style="width:200px">{{ key }}</th>
+              <td>{{ item.author[key] }}</td>
+            </ng-container>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="item.assignment">
+      <h5 class="mt-3">Assignment Info</h5>
+      <table class="table table-bordered">
+        <tbody>
+          <tr *ngFor="let key of objectKeys(item.assignment)">
+            <!-- <th style="width:200px">{{ key | titlecase }}</th>
+            <td>{{ item.assignment[key] }}</td> -->
+            <ng-container *ngIf="key !== '_id'">
+              <th style="width:200px">{{ key }}</th>
+              <td>{{ item.assignment[key] }}</td>
+            </ng-container>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <div *ngIf="!loading && !item" class="alert alert-warning">

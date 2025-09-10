@@ -214,18 +214,19 @@
         },
         {
           "name": "author",
-          "type":  "Object",
+          "type":  "ObjectId",
           "form": {
             "input": "lookup",
             "collection": "users",
             "labelField": "name",
-            "valueField": "_id",
+            "autocomplete": false,
+            "limit": 10,
             "grid": 6
           }
         },
         {
           "name": "assignment",
-          "type": "Object",
+          "type": "ObjectId",
           "form": {
             "input": "lookup",
             "collection": "assignments",

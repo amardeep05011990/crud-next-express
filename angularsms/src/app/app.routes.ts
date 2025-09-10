@@ -37,6 +37,8 @@ import { PostsListComponent } from './generator/generated/forms/posts-form/posts
 import { StudentsListComponent } from './generator/generated/forms/students-form/students-list.component';
 import { UsersListComponent } from './generator/generated/forms/users-form/users-list.component';
 import { LoginComponent } from './login/login.component';
+import { AssignmentsFormComponent } from './generator/generated/forms/assignments-form/assignments-form.component';
+import { AssignmentsListComponent } from './generator/generated/forms copy/assignments-form/assignments-list.component';
 
 
 
@@ -91,6 +93,8 @@ export const routes: Routes = [
         {path: "posts", component: PostsListComponent},
         {path: "students", component: StudentsListComponent},
         {path: "allusers", component: UsersListComponent},
+        {path: "assignments", component: AssignmentsListComponent},
+
 
 
 

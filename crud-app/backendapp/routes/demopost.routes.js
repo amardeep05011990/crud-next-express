@@ -36,6 +36,8 @@ router.post("/", demopostValidator, validate, async (req, res) => {
   res.json(saved);
 });
 
+
+
 // READ ALL
 /**
  * @swagger
@@ -96,21 +98,52 @@ router.get("/", async (req, res) => {
     const { page = 1, limit = 10, search, ...filters } = req.query;
     const query = {};
 
-    // Add filters
-    Object.keys(filters).forEach((key) => {
-      query[key] = filters[key];
-    });
+    // 🔹 Add filters
+    // Object.keys(filters).forEach((key) => {
+    //   if (typeof filters[key] === "string") {
+    //     // Supports: ^start, end$, and contains (default)
+    //     query[key] = { $regex: filters[key], $options: "i" };
+    //   } else {
+    //     query[key] = filters[key];
+    //   }
+    // });
 
-    // Add search on all string fields
+    // 🔹 Add filters (lookup-aware)
+Object.keys(filters).forEach((key) => {
+  if ([].includes(key)) {
+    // Lookup fields: match ObjectId directly
+    query[key] = filters[key];
+  } else if (typeof filters[key] === "string") {
+    // String fields: regex search
+    query[key] = { $regex: filters[key], $options: "i" };
+  } else {
+    query[key] = filters[key];
+  }
+});
+
+
+    // 🔹 Add search across searchable fields
+    // if (search) {
+    //   query["$or"] = ["title"].map((field) => ({
+    //     [field]: { $regex: search, $options: "i" }
+    //   }));
+    // }
     if (search) {
-      query["$or"] = ["title"].map((field) => ({
+        query["$or"] = ["title"].map((field) => ({
         [field]: { $regex: search, $options: "i" }
       }));
     }
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const total = await demopost.countDocuments(query);
-    const data = await demopost.find(query).skip(skip).limit(parseInt(limit));
+
+    // 🔹 Base query
+    let mongooseQuery = demopost.find(query).skip(skip).limit(parseInt(limit));
+
+    // 🔹 Auto-populate lookup fields
+    
+
+    const data = await mongooseQuery;
 
     res.json({
       data,
@@ -142,9 +175,27 @@ router.get("/", async (req, res) => {
  *       200:
  *         description: The demopost data
  */
+// router.get("/:id", async (req, res) => {
+//   const item = await demopost.findById(req.params.id);
+//   res.json(item);
+// });
 router.get("/:id", async (req, res) => {
-  const item = await demopost.findById(req.params.id);
-  res.json(item);
+  try {
+    let mongooseQuery = demopost.findById(req.params.id);
+
+    // 🔹 Auto-populate lookup fields (only if any exist in schema.json)
+    
+
+    const item = await mongooseQuery;
+
+    if (!item) {
+      return res.status(404).json({ message: "demopost not found" });
+    }
+
+    res.json(item);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // UPDATE

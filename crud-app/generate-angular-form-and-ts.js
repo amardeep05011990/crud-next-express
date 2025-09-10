@@ -67,28 +67,28 @@ schema.collections.forEach((collection) => {
           <label class="form-check-label" for="${name}">${label}</label>
         </div>`;
     }
-if (type === "checkbox-group") {
-  return `
-    <div class="col-md-${grid}">
-      <label class="form-label">${label}</label>
-      <div class="d-flex flex-wrap">
-        ${options
-          .map(
-            (opt) => `
-          <div class="form-check me-3">
-            <input 
-              type="checkbox" 
-              class="form-check-input" 
-              (change)="onCheckboxGroupChange('${name}', $event, '${opt}')"
-              [checked]="form.get('${name}')?.value?.includes('${opt}')"> <!-- ✅ Preselect -->
-            <label class="form-check-label">${opt}</label>
-          </div>`
-          )
-          .join("")}
-      </div>
-    </div>`;
-}
 
+    if (type === "checkbox-group") {
+      return `
+        <div class="col-md-${grid}">
+          <label class="form-label">${label}</label>
+          <div class="d-flex flex-wrap">
+            ${options
+              .map(
+                (opt) => `
+              <div class="form-check me-3">
+                <input 
+                  type="checkbox" 
+                  class="form-check-input" 
+                  (change)="onCheckboxGroupChange('${name}', $event, '${opt}')"
+                  [checked]="form.get('${name}')?.value?.includes('${opt}')">
+                <label class="form-check-label">${opt}</label>
+              </div>`
+              )
+              .join("")}
+          </div>
+        </div>`;
+    }
 
     if (type === "file") {
       return `
@@ -114,28 +114,39 @@ if (type === "checkbox-group") {
         </div>`;
     }
 
-    // if (type === "lookup") {
-    //   return `
-    //     <div class="col-md-${grid}">
-    //       <label for="${name}" class="form-label">${label}</label>
-    //       <select class="form-select" id="${name}" formControlName="${name}">
-    //         <option *ngFor="let opt of ${name}Options" [ngValue]="opt">{{ opt.label || opt }}</option>
-    //       </select>
-    //     </div>`;
-    // }
-
 if (type === "lookup") {
-  return `
-    <div class="col-md-${grid}">
-      <label for="${name}" class="form-label">${label}</label>
-      <select class="form-select" id="${name}" formControlName="${name}">
-        <option *ngFor="let opt of ${name}Options" [ngValue]="opt.value">{{ opt.label }}</option>
-      </select>
-    </div>`;
+  if (field.form?.autocomplete) {
+    // 🔹 Autocomplete lookup
+    return `
+      <div class="col-md-${grid} position-relative mb-3">
+        <label for="${name}_search" class="form-label">${label}</label>
+        <input type="text"
+               class="form-control"
+               placeholder="Search ${label}"
+               (input)="onLookupSearch('${name}', $any($event.target).value)"
+               [value]="getSelectedLabel('${name}')" />
+        <ul class="list-group position-absolute w-100" *ngIf="(${name}Options?.length ?? 0) > 0">
+          <li
+            class="list-group-item"
+            *ngFor="let opt of ${name}Options"
+            (click)="selectLookupOption('${name}', opt)">
+            {{ opt.label }}
+          </li>
+        </ul>
+      </div>`;
+  } else {
+    // 🔹 Normal dropdown
+    return `
+      <div class="col-md-${grid}">
+        <label for="${name}" class="form-label">${label}</label>
+        <select class="form-select" id="${name}" formControlName="${name}">
+          <option *ngFor="let opt of ${name}Options" [ngValue]="opt.value">{{ opt.label }}</option>
+        </select>
+      </div>`;
+  }
 }
 
 
-    // ==== EXISTING TYPES ====
     if (type === "radio") {
       return `
         <div class="col-md-${grid}">
@@ -205,35 +216,88 @@ export class ${compName}FormComponent implements OnInit {
   successMessage: string = '';
   errorMessage: string = '';
   isSubmitting: boolean = false;
+  searchTexts: { [key: string]: string } = {};
 
  ${collection.fields
   .filter(f => ["select", "lookup", "multiselect", "radio", "checkbox-group"].includes(f.form?.input))
-  .map(f => `${f.name}Options: any = ${JSON.stringify(f.form?.options || [])};`)
-  
+  .map(f => `${f.name}Options: any[] = ${JSON.stringify(f.form?.options || [])};`)
   .join("\n  ")}
 
-
+  [key: string]: any; // for dynamic lookup arrays
 
   constructor(private fb: FormBuilder, private http: HttpClient) {}
 
-  ngOnInit() {
+${collection.fields
+  .filter(f => f.form?.input === "lookup")
+  .map(f => {
+    const lookupCollection = f.form?.collection;
+    const labelField = f.form?.labelField || "name";
+    const valueField = f.form?.valueField || "_id";
 
-        ${collection.fields
-      .filter(f => f.form?.input === "lookup")
-      .map(f => {
-        const lookupCollection = f.form?.collection;
-        const labelField = f.form?.labelField || "label";
-        const valueField = f.form?.valueField || "_id";
-        return `
-        // Fetch lookup options for ${f.name}
-        this.http.get<any>(\`\${environment.apiBaseUrl}/api/${lookupCollection}\`).subscribe(res => {
+    if (f.form?.autocomplete) {
+      return `
+    ${f.name}SearchTimeout: any;
+
+  // Generic lookup search
+  onLookupSearch(controlName: string, query: string) {
+    this.searchTexts[controlName] = query;
+
+    if (!query) {
+      this[controlName + "Options"] = [];
+      return;
+    }
+
+    clearTimeout(this[controlName + "SearchTimeout"]);
+    this[controlName + "SearchTimeout"] = setTimeout(() => {
+      this.http
+        .get<any>(\`\${environment.apiBaseUrl}/api/\${controlName}s?${labelField}=\${query}&limit=10\`)
+        .subscribe(res => {
           const items = Array.isArray(res) ? res : res.data || [];
-          this.${f.name}Options = items.map((item: any) => ({
+          this[controlName + "Options"] = items?.map((item: any) => ({
             label: item["${labelField}"],
             value: item["${valueField}"]
           }));
-        });`;
-      })
+        });
+    }, 300);
+  }
+
+  // Select from dropdown
+  selectLookupOption(controlName: string, option: any) {
+    this.form.get(controlName)?.setValue(option.value);
+    this[controlName + "Options"] = [option];
+    this.searchTexts[controlName] = option.label; // keep label in input
+  }
+
+  // Get label for current value (dual state)
+  getSelectedLabel(controlName: string): string {
+    if (this.searchTexts[controlName] !== undefined) {
+      return this.searchTexts[controlName];
+    }
+    const value = this.form.get(controlName)?.value;
+    const option = this[controlName + "Options"]?.find((o: any) => o.value === value);
+    return option ? option.label : "";
+  }`;
+    } else {
+      return `
+  // Normal dropdown lookup
+  load${capitalize(f.name)}Options() {
+    this.http.get<any>(\`\${environment.apiBaseUrl}/api/${lookupCollection}\`).subscribe(res => {
+      const items = Array.isArray(res) ? res : res.data || [];
+      this.${f.name}Options = items.map((item: any) => ({
+        label: item["${labelField}"],
+        value: item["${valueField}"]
+      }));
+    });
+  }`;
+    }
+  })
+  .join("\n")}
+
+  ngOnInit() {
+
+    ${collection.fields
+      .filter(f => f.form?.input === "lookup" && f.form?.autocomplete !== true)
+      .map(f => `this.load${capitalize(f.name)}Options();`)
       .join("\n")}
 
     this.form = this.fb.group({
@@ -251,20 +315,42 @@ export class ${compName}FormComponent implements OnInit {
 
           const valString = validators.length ? `[${validators.join(", ")}]` : `[]`;
 
-          // checkbox-group = array, checkbox = boolean
           if (f.form?.input === "multiselect" || f.form?.input === "checkbox-group") {
-            return `${f.name}: [[], ${valString}]`;   // array by default
+            return `${f.name}: [[], ${valString}]`;
           } else if (f.form?.input === "checkbox") {
-            return `${f.name}: [false, ${valString}]`; // boolean default
+            return `${f.name}: [false, ${valString}]`;
           } else {
-            return `${f.name}: ['', ${valString}]`;    // string default
-}
+            return `${f.name}: ['', ${valString}]`;
+          }
         })
         .join(",\n      ")}
     });
 
     if (this.item) {
       this.form.patchValue(this.item);
+
+      // preload lookup values on edit
+      ${collection.fields
+        .filter(f => f.form?.input === "lookup")
+        .map(f => {
+          const lookupCollection = f.form?.collection;
+          const labelField = f.form?.labelField || "name";
+          const valueField = f.form?.valueField || "_id";
+          return `
+      if (this.item?.${f.name}) {
+        this.http.get<any>(\`\${environment.apiBaseUrl}/api/${lookupCollection}/\${this.item.${f.name}}\`)
+          .subscribe(res => {
+            if (res) {
+              this.${f.name}Options = [{
+                label: res["${labelField}"],
+                value: res["${valueField}"]
+              }];
+              this.form.get("${f.name}")?.setValue(res["${valueField}"]);
+            }
+          });
+      }`;
+        })
+        .join("\n")}
     }
   }
 
@@ -276,44 +362,22 @@ export class ${compName}FormComponent implements OnInit {
     }
   }
 
-  // Checkbox group handler
-  // onCheckboxGroupChange(controlName: string, event: any, value: string) {
-  //   const arr: string[] = this.form.get(controlName)?.value || [];
-  //   if (event.target.checked) {
-  //     arr.push(value);
-  //   } else {
-  //     const idx = arr.indexOf(value);
-  //     if (idx >= 0) arr.splice(idx, 1);
-  //   }
-  //   this.form.get(controlName)?.setValue(arr);
-  // }
-
-onCheckboxGroupChange(controlName: string, event: any, value: string) {
-  const arr: string[] = this.form.get(controlName)?.value || [];
-
-  if (event.target.checked) {
-    // ✅ Add only if not already present
-    if (!arr.includes(value)) {
-      arr.push(value);
+  onCheckboxGroupChange(controlName: string, event: any, value: string) {
+    const arr: string[] = this.form.get(controlName)?.value || [];
+    if (event.target.checked) {
+      if (!arr.includes(value)) arr.push(value);
+    } else {
+      const idx = arr.indexOf(value);
+      if (idx >= 0) arr.splice(idx, 1);
     }
-  } else {
-    // ✅ Remove when unchecked
-    const idx = arr.indexOf(value);
-    if (idx >= 0) arr.splice(idx, 1);
+    this.form.get(controlName)?.setValue(arr);
   }
-
-  this.form.get(controlName)?.setValue(arr);
-}
-
 
   onSubmit() {
     if (this.form.invalid) {
       this.errorMessage = "Please fix the errors before submitting.";
       this.successMessage = '';
       return;
-    }
-    if (this.form.valid) {
-      console.log("this.form.value", this.form.value);
     }
 
     this.isSubmitting = true;
