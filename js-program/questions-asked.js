@@ -1,6 +1,7 @@
 // Question 1 ->
-abc();
- xyz();
+console.log(abc());
+
+//  xyz();
 
  function abc() {
    console.log('abc');

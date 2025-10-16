@@ -1,0 +1,119 @@
+// Akash
+// 19:29
+const obj = {
+  name: "Alice",
+  normal: function () {
+    return this.name;
+  },
+  arrow: () => this.name,
+};
+
+console.log(obj.normal());
+console.log(obj.arrow());
+// You
+// 19:30
+// Alice
+// undefined
+// Akash
+// 19:31
+console.log(1 + '1' - 1);
+// Akash
+// 19:33
+console.log(1 < 2 < 3);
+console.log(3 < 2 < 1);
+
+console.log('Before everything');
+
+const promise = new Promise((resolve) => {
+  console.log('Promise started');
+  setImmediate(() => {
+    console.log('Inside setImmediate from promise');
+  });
+  resolve('Promise resolved');
+});
+
+promise.then((result) => {
+  console.log('Promise result:', result);
+  setImmediate(() => {
+    console.log('Inside setImmediate from promise then');
+  });
+});
+
+setTimeout(() => {
+  console.log('Inside setTimeout');
+}, 0);
+
+console.log('After everything');
+
+
+
+// Create a custom event emitter that listens for a "userRegistered" event and logs the user’s name when triggered.
+
+
+// find the first non reperating character of "swiss"
+
+
+
+
+// const obj = { a: 1 };
+// const ref = obj; 
+// ref.a = 2;
+// console.log(obj.a);
+
+
+
+
+// /counter.js
+// let count = 0;
+// let increment = () => ++count;
+// //main.js
+// // const counter1 = require('./counter.js');
+// // const counter2 = require('./counter.js');
+ 
+// console.log(increment());
+// console.log(increment());
+
+
+// new Promise((resolve, reject) => {
+//  throw new Error('error')
+// }).then(console.log)
+
+
+
+
+
+
+
+// console.log('A');
+// setTimeout(() => console.log('B'), 0);
+// Promise.resolve().then(() => console.log('C'));
+// console.log('D');
+
+// // A
+// // D
+// // C
+// // B
+
+// async function test() {   
+// console.log('A');   
+// await new Promise((resolve) => setTimeout(resolve, 1000));   
+// console.log('B'); 
+// } 
+// console.log('C');
+// test();
+// console.log('D');
+
+// C
+// D
+// A
+// B
+
+// new Promise(resolve => {
+// resolve('A');
+// }).then (result => {
+// return result + 'B';
+// }).then (result => {
+// console.log(result + 'C');
+// });
+
+
