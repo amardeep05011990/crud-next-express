@@ -39,6 +39,7 @@ import { UsersListComponent } from './generator/generated/forms/users-form/users
 import { LoginComponent } from './login/login.component';
 import { AssignmentsFormComponent } from './generator/generated/forms/assignments-form/assignments-form.component';
 import { AssignmentsListComponent } from './generator/generated/forms copy/assignments-form/assignments-list.component';
+import { GameCanvasComponent } from './game-canvas/game-canvas.component';
 
 
 
@@ -67,6 +68,8 @@ export const routes: Routes = [
         { path: 'testimonials', component:  TestimonialsComponent},
         { path: 'contact', component: ContactsComponent },
         { path: 'login', component: LoginComponent },
+        { path: 'pixi', component: GameCanvasComponent },
+
 
     ]
   },
