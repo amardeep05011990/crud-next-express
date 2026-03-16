@@ -117,3 +117,40 @@ console.log('After everything');
 // });
 
 
+function update(n) {
+  n++;
+}
+let x = 5;
+update(x);
+console.log(x);
+
+(function() {
+	var a=b=5;
+})();
+ 
+console.log(b);
+
+
+
+
+// question for js which execute first 
+async function a () {
+  console.log('start');
+  await abc().then(() => console.log('inside abc'));
+  
+  Promise.resolve().then(() => console.log('promise resolve'));
+  
+  console.log('end');
+}
+
+function abc() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, 1000);
+  });
+}
+
+a();
+
+

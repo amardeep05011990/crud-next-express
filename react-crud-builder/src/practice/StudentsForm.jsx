@@ -182,10 +182,10 @@ const StudentsForm = () => {
               error={!!fieldState.error}
             >
               <MenuItem value="asdf1">asdf1</MenuItem>
-<MenuItem value="asdf2">asdf2</MenuItem>
-<MenuItem value="asdf3">asdf3</MenuItem>
-<MenuItem value="asdf4">asdf4</MenuItem>
-<MenuItem value="asdf5">asdf5</MenuItem>
+                <MenuItem value="asdf2">asdf2</MenuItem>
+                <MenuItem value="asdf3">asdf3</MenuItem>
+                <MenuItem value="asdf4">asdf4</MenuItem>
+                <MenuItem value="asdf5">asdf5</MenuItem>
             </Select>
             {fieldState.error && <p style={{ color: 'red' }}>{fieldState.error.message}</p>}
           </FormControl>
